@@ -7,7 +7,8 @@ Setup takes about 10 minutes.
 
 1. Go to **payhip.com** → Sign up (free plan is fine — they take 5% per sale, no monthly fee).
 2. Click **Add new product → Digital product**.
-3. **Product file:** upload `product/The-First-Riff-Method.zip` from this repo.
+3. **Product file:** upload `The-First-Riff-Method.zip` (sent to you in the Claude
+   chat — keep a private copy; it's intentionally not in this public repo).
 4. **Price:** `$20.00` (set currency to AUD if selling mainly on Gumtree Australia, or USD for wider reach).
 5. **Cover images:** upload the four images from `listing-images/` in this repo.
 6. Paste the title and description below.
@@ -59,5 +60,5 @@ One-time price. No subscription. 30-day money-back guarantee — if it doesn't g
 
 - Put the Payhip link in the Gumtree ad (see `GUMTREE-LISTING.md`).
 - Payhip handles delivery, receipts, and refunds — you don't email files manually.
-- **Important:** once Payhip is live, take the full product (`frmfsp.html`) off the
-  public GitHub Pages site so people can't get it free (see note in README/summary).
+- The full course has been removed from this public repo so it can't be grabbed
+  free — only the demo stays public. Payhip is the only place the full file lives.

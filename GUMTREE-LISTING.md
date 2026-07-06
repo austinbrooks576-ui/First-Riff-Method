@@ -46,8 +46,8 @@ on Payhip and get the download instantly — you never have to send files or cha
 payments, and Payhip's receipt protects both sides.
 
 **If a buyer insists on paying directly through Gumtree chat:** accept PayID or
-PayPal (Goods & Services), and once payment clears, email them the zip from
-`product/The-First-Riff-Method.zip`. Never send the file before payment.
+PayPal (Goods & Services), and once payment clears, email them your private copy
+of `The-First-Riff-Method.zip`. Never send the file before payment.
 
 ## Posting tips
 
