@@ -1,0 +1,12 @@
+{
+  "mcpServers": {
+    "kraken": {
+      "command": "uvx",
+      "args": ["mcp-kraken", "serve", "--stdio"],
+      "env": {
+        "KRAKEN_API_KEY": "${KRAKEN_API_KEY}",
+        "KRAKEN_API_SECRET": "${KRAKEN_API_SECRET}"
+      }
+    }
+  }
+}
