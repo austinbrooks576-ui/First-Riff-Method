@@ -33,6 +33,6 @@ Who it's for: total beginners, anyone who's tried and quit, adults finally doing
 
 How it works: opens right in your web browser — phone, tablet, or computer. Nothing to install. Yours forever, with free updates.
 
-Try it free first: the first two lessons and the tuner are free → [YOUR FREE DEMO LINK]
+Try it free first: the first two lessons and the tuner are free → https://austinbrooks576-ui.github.io/First-Riff-Method/first-riff-method-DEMO.html
 
 One-time price. No subscription. 30-day money-back guarantee — if it doesn't get you playing, full refund.
