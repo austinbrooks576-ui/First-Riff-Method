@@ -187,6 +187,76 @@ input[type=range]{width:100%;accent-color:var(--teal);height:20px;cursor:pointer
 
 /* Scrollbar for panels */
 .panel{scrollbar-width:thin;scrollbar-color:var(--bdr) transparent;}
+
+/* AI COMPOSER */
+.ai-section{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:10px;margin-bottom:8px;}
+.ai-title{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--purple);margin-bottom:8px;}
+.ai-info-row{display:flex;gap:6px;margin-bottom:8px;}
+.ai-info-card{flex:1;background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--r2);padding:8px;text-align:center;}
+.ai-info-label{font-size:8px;font-weight:700;letter-spacing:.1em;color:var(--mute);text-transform:uppercase;}
+.ai-info-val{font-size:18px;font-weight:800;color:var(--purple);margin-top:2px;}
+#ai-chroma{width:100%;height:40px;border-radius:var(--r2);background:var(--surf2);display:block;margin-bottom:8px;}
+.ai-btn{width:100%;padding:9px;background:var(--purple);color:#fff;border:none;border-radius:var(--r2);font-size:12px;font-weight:700;cursor:pointer;letter-spacing:.06em;transition:filter .12s;}
+.ai-btn:active{filter:brightness(.85);}
+.ai-style-row{display:flex;gap:5px;flex-wrap:wrap;}
+.ai-style-btn{flex:1;min-width:56px;padding:7px 4px;border-radius:var(--r2);border:1px solid var(--bdr);background:var(--surf2);color:var(--mute);font-size:10px;font-weight:700;cursor:pointer;text-align:center;transition:all .12s;}
+.ai-style-btn.on{background:var(--purple);color:#fff;border-color:var(--purple);}
+.ai-action-grid{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+.ai-action-btn{padding:10px 6px;border-radius:var(--r2);border:1.5px solid var(--purple);background:rgba(170,0,255,.12);color:var(--purple);font-size:11px;font-weight:700;cursor:pointer;text-align:center;transition:all .12s;}
+.ai-action-btn:active{background:var(--purple);color:#fff;}
+.ai-action-btn.ready{background:var(--purple);color:#fff;}
+.ai-log{background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--r2);padding:8px;max-height:160px;overflow-y:auto;font-size:11px;line-height:1.6;}
+.ai-log-msg{color:var(--mute);border-bottom:1px solid var(--bdr);padding-bottom:4px;margin-bottom:4px;}
+.ai-log-msg:last-child{border-bottom:none;padding-bottom:0;margin-bottom:0;}
+.ai-log-msg.good{color:var(--green);}
+.ai-log-msg.tip{color:var(--yellow);}
+.ai-log-msg.info{color:var(--txt);}
+
+/* ---- LANDSCAPE ---- */
+@media (orientation:landscape){
+  /* Tighter header */
+  #header{padding:4px 10px;}
+  #vis-canvas{width:70px;height:22px;}
+  #logo{font-size:13px;}
+
+  /* Shorter tabs */
+  .tab{padding:6px 4px;font-size:9px;}
+
+  /* Less panel padding so content breathes */
+  .panel{padding:6px;}
+
+  /* PADS: 8 columns × 2 rows — pads become wide touch targets */
+  #pad-grid{grid-template-columns:repeat(8,1fr);gap:4px;margin-bottom:6px;}
+  .pad{aspect-ratio:unset;height:calc((100vw - 28px) / 16 * 1.5);}
+
+  /* SEQUENCER: slimmer rows to fit 16 tracks on screen */
+  .seq-step{height:13px;}
+  .seq-label{font-size:7.5px;}
+  #seq-wrap{padding:5px;}
+  #seq-grid{gap:2px;}
+  .seq-row{gap:2px;}
+
+  /* KEYBOARD: taller keys — the main prize in landscape */
+  #keyboard-wrap{height:220px;}
+  #keys-panel .mode-bar{margin-bottom:6px;}
+  #keys-oct{margin-top:5px;}
+
+  /* SYNTH: tighter spacing */
+  .synth-section{padding:6px;margin-bottom:6px;}
+  .knob{width:40px;height:40px;}
+  .knob-wrap{min-width:46px;}
+
+  /* FX: 3-column pedal grid */
+  #fx-panel .pedals{grid-template-columns:repeat(3,1fr);gap:6px;}
+
+  /* LOOP: tracks in 2 columns */
+  #loop-panel .loop-tracks{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
+  .loop-track{padding:6px;}
+  .lt-waveform{height:22px;}
+
+  /* Transport buttons */
+  .tbtn{padding:7px;}
+}
 </style>
 </head>
 <body>
@@ -213,6 +283,7 @@ input[type=range]{width:100%;accent-color:var(--teal);height:20px;cursor:pointer
   <div class="tab" data-tab="keys">KEYS</div>
   <div class="tab" data-tab="fx">FX</div>
   <div class="tab" data-tab="loop">LOOP</div>
+  <div class="tab" data-tab="ai">AI</div>
 </div>
 
 <!-- PANELS -->
@@ -588,6 +659,63 @@ input[type=range]{width:100%;accent-color:var(--teal);height:20px;cursor:pointer
       </div>
     </div>
   </div>
+</div>
+
+<!-- AI COMPOSER -->
+<div class="panel" id="ai-panel">
+
+  <!-- Analysis -->
+  <div class="ai-section">
+    <div class="ai-title">ANALYSIS</div>
+    <div class="ai-info-row">
+      <div class="ai-info-card">
+        <div class="ai-info-label">KEY</div>
+        <div class="ai-info-val" id="ai-key-val">--</div>
+      </div>
+      <div class="ai-info-card">
+        <div class="ai-info-label">BPM</div>
+        <div class="ai-info-val" id="ai-bpm-val">--</div>
+      </div>
+      <div class="ai-info-card">
+        <div class="ai-info-label">FEEL</div>
+        <div class="ai-info-val" id="ai-mood-val" style="font-size:11px;padding-top:6px;">--</div>
+      </div>
+    </div>
+    <canvas id="ai-chroma" height="40"></canvas>
+    <button class="ai-btn" id="ai-analyze-btn">ANALYZE SOUND</button>
+  </div>
+
+  <!-- Style -->
+  <div class="ai-section">
+    <div class="ai-title">STYLE</div>
+    <div class="ai-style-row">
+      <button class="ai-style-btn on" data-style="house">HOUSE</button>
+      <button class="ai-style-btn" data-style="hiphop">HIP-HOP</button>
+      <button class="ai-style-btn" data-style="jazz">JAZZ</button>
+      <button class="ai-style-btn" data-style="latin">LATIN</button>
+      <button class="ai-style-btn" data-style="trap">TRAP</button>
+    </div>
+  </div>
+
+  <!-- Generate -->
+  <div class="ai-section">
+    <div class="ai-title">GENERATE</div>
+    <div class="ai-action-grid">
+      <button class="ai-action-btn" id="ai-gen-drums">DRUM PATTERN</button>
+      <button class="ai-action-btn" id="ai-gen-melody">MELODY LINE</button>
+      <button class="ai-action-btn" id="ai-apply-drums" style="display:none">APPLY DRUMS</button>
+      <button class="ai-action-btn" id="ai-apply-melody" style="display:none">APPLY TO LOOP 4</button>
+    </div>
+  </div>
+
+  <!-- Log -->
+  <div class="ai-section">
+    <div class="ai-title">AI INSIGHTS</div>
+    <div class="ai-log" id="ai-log">
+      <div class="ai-log-msg">Play something and tap ANALYZE to detect the key and mood — or pick a style and generate a drum pattern instantly.</div>
+    </div>
+  </div>
+
 </div>
 
 </div><!-- /panels -->
@@ -1630,6 +1758,353 @@ document.getElementById('loop-all-clear').addEventListener('click', () => {
 });
 document.getElementById('loop-len').addEventListener('input', e => { document.getElementById('loop-len-val').textContent = e.target.value; });
 document.getElementById('loop-quant').addEventListener('input', e => { document.getElementById('loop-quant-val').textContent = e.target.value === '1' ? 'ON' : 'OFF'; });
+
+// =============================================
+// IMPORT / EXPORT
+// =============================================
+function importAudioToTrack(idx) {
+  if (!audioReady) initAudio();
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'audio/*';
+  inp.onchange = async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const arrayBuf = await file.arrayBuffer();
+      const audioBuf = await ctx.decodeAudioData(arrayBuf);
+      const tr = looper.tracks[idx];
+      loopStop(idx);
+      tr.audioBuf = audioBuf;
+      tr.events = [];
+      tr.duration = audioBuf.duration * 1000;
+      updateLoopUI(idx);
+      toast('Imported: ' + file.name.slice(0, 24));
+    } catch(err) {
+      toast('Import failed — unsupported format');
+    }
+  };
+  inp.click();
+}
+
+let exportRec = null, exportDest = null;
+
+function toggleExport() {
+  if (!audioReady) { toast('Start playing first'); return; }
+  const btn = document.getElementById('export-btn');
+  if (exportRec && exportRec.state === 'recording') {
+    exportRec.stop();
+  } else {
+    exportDest = ctx.createMediaStreamDestination();
+    masterGain.connect(exportDest);
+    exportRec = new MediaRecorder(exportDest.stream);
+    const chunks = [];
+    exportRec.ondataavailable = e => { if (e.data.size > 0) chunks.push(e.data); };
+    exportRec.onstop = () => {
+      const blob = new Blob(chunks, { type: exportRec.mimeType || 'audio/webm' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url; a.download = 'first-riff-' + Date.now() + '.webm';
+      document.body.appendChild(a); a.click(); document.body.removeChild(a);
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+      try { masterGain.disconnect(exportDest); } catch(e2){}
+      exportDest = null; exportRec = null;
+      btn.textContent = '⬇ EXPORT AUDIO';
+      btn.style.background = ''; btn.style.color = 'var(--blue)';
+      toast('Saved — check Downloads folder');
+    };
+    exportRec.start();
+    btn.textContent = '■ STOP & SAVE';
+    btn.style.background = 'var(--red)'; btn.style.color = '#fff';
+    toast('Recording output... tap again to save');
+  }
+}
+
+document.getElementById('export-btn').addEventListener('click', toggleExport);
+
+// =============================================
+// AI COMPOSER
+// =============================================
+
+const AI = { style: 'house', lastKey: null, lastMode: null, pendingDrums: null, pendingMelody: null };
+
+// Krumhansl-Schmuckler key profiles
+const KS_MAJOR = [6.35,2.23,3.48,2.33,4.38,4.09,2.52,5.19,2.39,3.66,2.29,2.88];
+const KS_MINOR = [6.33,2.68,3.52,5.38,2.60,3.53,2.54,4.75,3.98,2.69,3.34,3.17];
+const PC_NAMES = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
+
+const SCALES = {
+  pentatonic_major: [0,2,4,7,9],
+  pentatonic_minor: [0,3,5,7,10]
+};
+
+// Drum style templates: track index → 16-step boolean array
+const AI_STYLES = {
+  house: {
+    label:'House', mood:'Energetic', bpmRange:[120,135],
+    tracks:{
+      0:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0],
+      1:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+      2:[1,0,1,0,1,0,1,0,1,0,1,0,1,0,1,0],
+      3:[0,0,0,0,0,0,0,1,0,0,0,0,0,0,0,0],
+      4:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,1]
+    }
+  },
+  hiphop: {
+    label:'Hip-Hop', mood:'Groovy', bpmRange:[80,100],
+    tracks:{
+      0:[1,0,0,0,0,0,1,0,0,0,1,0,0,0,0,0],
+      1:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+      4:[0,0,1,0,0,0,0,0,0,0,1,0,0,1,0,0],
+      2:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+      11:[0,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0]
+    }
+  },
+  jazz: {
+    label:'Jazz', mood:'Swinging', bpmRange:[100,140],
+    tracks:{
+      7:[1,0,0,1,0,0,1,0,1,0,0,1,0,0,1,0],
+      1:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,0,0],
+      3:[1,0,0,0,0,0,0,0,1,0,0,0,0,0,0,0],
+      5:[0,0,1,0,0,0,0,0,0,0,1,0,0,0,0,0],
+      9:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0]
+    }
+  },
+  latin: {
+    label:'Latin', mood:'Rhythmic', bpmRange:[100,120],
+    tracks:{
+      13:[1,0,1,0,0,1,0,1,0,0,1,0,1,0,0,1],
+      11:[1,0,1,1,0,1,1,0,1,1,0,1,0,1,0,1],
+      0: [1,0,0,0,0,0,1,0,0,1,0,0,0,0,1,0],
+      1: [0,0,0,1,0,0,0,0,0,0,0,1,0,0,0,0],
+      10:[1,0,0,0,1,0,0,0,1,0,0,0,1,0,0,0]
+    }
+  },
+  trap: {
+    label:'Trap', mood:'Dark', bpmRange:[130,150],
+    tracks:{
+      0:[1,0,0,0,0,0,0,0,0,0,1,0,0,0,0,0],
+      1:[0,0,0,0,1,0,0,0,0,0,0,0,1,0,1,0],
+      2:[1,1,1,1,1,1,1,1,1,1,1,1,1,1,0,0],
+      3:[0,0,0,0,0,0,0,0,0,0,0,0,0,0,1,0],
+      4:[0,0,0,0,0,0,0,0,0,0,0,0,0,1,0,0]
+    }
+  }
+};
+
+function aiGetChroma() {
+  if (!audioReady) return new Array(12).fill(0);
+  const buf = new Float32Array(analyser.frequencyBinCount);
+  analyser.getFloatFrequencyData(buf);
+  const chroma = new Array(12).fill(0);
+  const nyquist = ctx.sampleRate / 2;
+  for (let i = 1; i < buf.length; i++) {
+    const freq = i / buf.length * nyquist;
+    if (freq < 55 || freq > 3520) continue;
+    const lin = Math.pow(10, buf[i] / 20);
+    if (!isFinite(lin) || lin < 0.0001) continue;
+    const pc = ((Math.round(12 * Math.log2(freq / 440) + 69)) % 12 + 12) % 12;
+    chroma[pc] += lin;
+  }
+  return chroma;
+}
+
+function aiDetectKey(chroma) {
+  const sum = chroma.reduce((a,b) => a+b, 0.001);
+  const norm = chroma.map(v => v / sum);
+  let bestKey = 0, bestMode = 'major', bestScore = -Infinity;
+  for (let k = 0; k < 12; k++) {
+    let maj = 0, min = 0;
+    for (let i = 0; i < 12; i++) { maj += KS_MAJOR[i] * norm[(i+k)%12]; min += KS_MINOR[i] * norm[(i+k)%12]; }
+    if (maj > bestScore) { bestScore = maj; bestKey = k; bestMode = 'major'; }
+    if (min > bestScore) { bestScore = min; bestKey = k; bestMode = 'minor'; }
+  }
+  return { key: bestKey, mode: bestMode };
+}
+
+function aiDrawChroma(chroma) {
+  const canvas = document.getElementById('ai-chroma');
+  if (!canvas) return;
+  const c = canvas.getContext('2d');
+  canvas.width = canvas.offsetWidth || 280;
+  c.fillStyle = '#1A1D25'; c.fillRect(0, 0, canvas.width, 40);
+  const max = Math.max(...chroma, 0.001);
+  const bw = canvas.width / 12;
+  const cols = ['#FF3B5C','#FF6D00','#FFD600','#00E676','#00BCD4','#448AFF','#AA00FF','#F50057','#76FF03','#FF8F00','#00E5FF','#7C4DFF'];
+  chroma.forEach((v, i) => {
+    const h = Math.max(2, (v / max) * 33);
+    c.fillStyle = cols[i];
+    c.fillRect(i * bw + 1, 40 - h, bw - 2, h);
+    c.fillStyle = 'rgba(255,255,255,.55)';
+    c.font = '7px system-ui'; c.textAlign = 'center';
+    c.fillText(PC_NAMES[i], i * bw + bw / 2, 39);
+  });
+}
+
+function aiLog(msg, type) {
+  const log = document.getElementById('ai-log');
+  if (!log) return;
+  const div = document.createElement('div');
+  div.className = 'ai-log-msg' + (type ? ' ' + type : '');
+  div.textContent = msg;
+  log.insertBefore(div, log.firstChild);
+  while (log.children.length > 10) log.removeChild(log.lastChild);
+}
+
+function aiAnalyze() {
+  if (!audioReady) { toast('Play something first, then tap Analyze'); return; }
+  const chroma = aiGetChroma();
+  const { key, mode } = aiDetectKey(chroma);
+  AI.lastKey = key; AI.lastMode = mode;
+
+  const bpm = parseInt(document.getElementById('bpm').value);
+  const style = AI_STYLES[AI.style];
+  const keyLabel = PC_NAMES[key] + (mode === 'major' ? 'M' : 'm');
+
+  document.getElementById('ai-key-val').textContent = keyLabel;
+  document.getElementById('ai-bpm-val').textContent = bpm;
+  document.getElementById('ai-mood-val').textContent = style.mood;
+  aiDrawChroma(chroma);
+
+  const activeTracks = seqPatterns.filter(p => p.some(Boolean)).length;
+  aiLog(`Key: ${PC_NAMES[key]} ${mode} · ${activeTracks} active tracks at ${bpm} BPM`, 'good');
+  aiLog(`Chroma fingerprint captured — strongest pitch class: ${PC_NAMES[chroma.indexOf(Math.max(...chroma))]}`, 'info');
+
+  const bpmOk = bpm >= style.bpmRange[0] && bpm <= style.bpmRange[1];
+  if (!bpmOk) aiLog(`${style.label} typically runs ${style.bpmRange[0]}–${style.bpmRange[1]} BPM`, 'tip');
+
+  // Preview which tracks would be filled
+  const fillable = Object.keys(style.tracks).filter(ti => !seqPatterns[parseInt(ti)].some(Boolean));
+  if (fillable.length) {
+    AI.pendingDrums = {};
+    fillable.forEach(ti => { AI.pendingDrums[ti] = style.tracks[ti]; });
+    aiLog(`${fillable.length} empty drum track(s) ready to fill with ${style.label} pattern`, 'tip');
+    document.getElementById('ai-apply-drums').style.display = '';
+    document.getElementById('ai-apply-drums').classList.add('ready');
+  } else {
+    aiLog('Drum tracks already have patterns — tap DRUM PATTERN to overwrite', '');
+    document.getElementById('ai-apply-drums').style.display = 'none';
+  }
+  aiLog(`Melody ready: ${PC_NAMES[key]} ${mode} pentatonic · tap MELODY LINE then APPLY`, '');
+  document.getElementById('ai-apply-melody').style.display = '';
+}
+
+function aiSuggestDrums() {
+  const style = AI_STYLES[AI.style];
+  AI.pendingDrums = {};
+  Object.entries(style.tracks).forEach(([ti, pat]) => { AI.pendingDrums[ti] = pat; });
+  const bpm = parseInt(document.getElementById('bpm').value);
+  document.getElementById('ai-mood-val').textContent = style.mood;
+  aiLog(`${style.label} pattern ready · ${Object.keys(AI.pendingDrums).length} tracks · ${bpm} BPM`, 'good');
+  aiLog(`Tap APPLY DRUMS to write to the sequencer`, 'tip');
+  document.getElementById('ai-apply-drums').style.display = '';
+  document.getElementById('ai-apply-drums').classList.add('ready');
+}
+
+function aiApplyDrums() {
+  if (!AI.pendingDrums) { toast('Generate a pattern first'); return; }
+  let applied = 0;
+  Object.entries(AI.pendingDrums).forEach(([ti, pattern]) => {
+    const track = parseInt(ti);
+    pattern.forEach((on, step) => {
+      seqPatterns[track][step] = !!on;
+      const el = document.querySelector(`.seq-step[data-track="${track}"][data-step="${step}"]`);
+      if (el) { el.classList.toggle('on', !!on); el.style.background = on ? drumDefs[track].color : ''; }
+    });
+    applied++;
+  });
+  aiLog(`Applied ${AI_STYLES[AI.style].label} pattern — ${applied} track(s) written to sequencer`, 'good');
+  document.getElementById('ai-apply-drums').classList.remove('ready');
+  toast(`${AI_STYLES[AI.style].label} pattern applied to ${applied} tracks`);
+  document.querySelector('.tab[data-tab="pads"]').click();
+}
+
+function aiGenerateMelody() {
+  const key = AI.lastKey !== null ? AI.lastKey : 0;
+  const mode = AI.lastMode || 'major';
+  const bpm = parseInt(document.getElementById('bpm').value);
+  const scale = mode === 'major' ? SCALES.pentatonic_major : SCALES.pentatonic_minor;
+
+  const rootMidi = key + 4 * 12; // octave 4
+  const playable = [];
+  [-12, 0, 12].forEach(sh => scale.forEach(iv => {
+    const n = rootMidi + sh + iv;
+    if (n >= 48 && n <= 84) playable.push(n);
+  }));
+
+  const beatMs = 60000 / bpm;
+  const barMs = 4 * beatMs;
+  const totalMs = 4 * barMs;
+  const durs = [beatMs/2, beatMs, beatMs, beatMs*1.5];
+
+  // Build a 1-bar motif then repeat with octave variation across 4 bars
+  const motif = [];
+  let mt = 0;
+  while (mt < barMs - 1) {
+    const dur = durs[Math.floor(Math.random() * durs.length)];
+    if (mt + dur > barMs) break;
+    const isRest = Math.random() < 0.15;
+    // Weight toward lower scale degrees (root, 3rd, 5th)
+    const idx = Math.floor(Math.pow(Math.random(), 1.5) * playable.length);
+    motif.push({ dur, midi: playable[Math.min(idx, playable.length - 1)], rest: isRest });
+    mt += dur;
+  }
+
+  const events = [];
+  let time = 0;
+  const octShifts = [0, 0, 12, -12];
+  for (let bar = 0; bar < 4; bar++) {
+    const shift = octShifts[bar];
+    motif.forEach(m => {
+      if (!m.rest && time < totalMs) {
+        const midi = Math.max(36, Math.min(96, m.midi + shift));
+        events.push({ time, type: 'note', midi });
+        events.push({ time: time + m.dur * 0.82, type: 'noteoff', midi });
+      }
+      time += m.dur;
+    });
+    const barEnd = (bar + 1) * barMs;
+    if (time < barEnd) time = barEnd;
+  }
+
+  AI.pendingMelody = { events, duration: totalMs };
+  aiLog(`Melody: ${PC_NAMES[key]} ${mode} pentatonic · 4 bars · ${events.length / 2} notes`, 'good');
+  aiLog(`Tap APPLY TO LOOP 4 to load it (overwrites track 4)`, 'tip');
+  document.getElementById('ai-apply-melody').style.display = '';
+  document.getElementById('ai-apply-melody').classList.add('ready');
+}
+
+function aiApplyMelody() {
+  if (!AI.pendingMelody) { toast('Generate a melody first'); return; }
+  const idx = 3;
+  loopStop(idx);
+  looper.tracks[idx].events = AI.pendingMelody.events;
+  looper.tracks[idx].duration = AI.pendingMelody.duration;
+  looper.tracks[idx].audioBuf = null;
+  updateLoopUI(idx);
+  document.getElementById('ai-apply-melody').classList.remove('ready');
+  aiLog(`Melody written to Loop Track 4 · ${(AI.pendingMelody.duration/1000).toFixed(1)}s loop`, 'good');
+  toast('Melody applied to Loop Track 4');
+  document.querySelector('.tab[data-tab="loop"]').click();
+}
+
+// AI event bindings
+document.querySelectorAll('.ai-style-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.ai-style-btn').forEach(b => b.classList.remove('on'));
+    btn.classList.add('on');
+    AI.style = btn.dataset.style;
+    AI.pendingDrums = null;
+    document.getElementById('ai-apply-drums').style.display = 'none';
+    const s = AI_STYLES[AI.style];
+    document.getElementById('ai-mood-val').textContent = s.mood;
+    aiLog(`Style: ${s.label} · ${s.bpmRange[0]}–${s.bpmRange[1]} BPM · ${s.mood}`, 'info');
+  });
+});
+document.getElementById('ai-analyze-btn').addEventListener('click', aiAnalyze);
+document.getElementById('ai-gen-drums').addEventListener('click', aiSuggestDrums);
+document.getElementById('ai-gen-melody').addEventListener('click', aiGenerateMelody);
+document.getElementById('ai-apply-drums').addEventListener('click', aiApplyDrums);
+document.getElementById('ai-apply-melody').addEventListener('click', aiApplyMelody);
 
 // Init click → start audio
 document.body.addEventListener('touchstart', () => initAudio(), { once: true, passive: true });
