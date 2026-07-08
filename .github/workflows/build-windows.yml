@@ -1,0 +1,93 @@
+name: Build First Riff Studio Windows App
+
+on:
+  push:
+    branches:
+      - main
+      - 'claude/**'
+    paths:
+      - 'electron/**'
+      - 'android/app/src/main/assets/index.html'
+      - '.github/workflows/build-windows.yml'
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Build Windows Installer
+    runs-on: windows-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Copy app HTML into Electron build dir
+        shell: bash
+        run: |
+          mkdir -p electron/app
+          cp android/app/src/main/assets/index.html electron/app/index.html
+
+      - name: Install dependencies
+        working-directory: electron
+        run: npm install
+
+      - name: Build Windows app
+        working-directory: electron
+        run: npm run build:win
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Upload Installer
+        uses: actions/upload-artifact@v4
+        with:
+          name: first-riff-studio-windows-installer
+          path: electron/dist/First Riff Studio Setup*.exe
+          retention-days: 30
+
+      - name: Upload Portable EXE
+        uses: actions/upload-artifact@v4
+        with:
+          name: first-riff-studio-windows-portable
+          path: electron/dist/First Riff Studio*.exe
+          if-no-files-found: warn
+          retention-days: 30
+
+      - name: Create Release
+        if: github.ref == 'refs/heads/main'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: win-v1.0.${{ github.run_number }}
+          name: First Riff Studio Windows v1.0.${{ github.run_number }}
+          body: |
+            ## First Riff Studio for Windows
+
+            A full-featured music production studio packaged as a Windows desktop app.
+
+            ### Download
+            - **Installer** (`First Riff Studio Setup *.exe`) — installs to Program Files with Start Menu + Desktop shortcuts
+            - **Portable** (`First Riff Studio *.exe`) — runs from anywhere, no install needed
+
+            ### Features
+            - **16 Drum Pads** — synthesized kick, snare, hi-hats, cymbals, claps & FX
+            - **Step Sequencer** — 16-track × 16-step drum machine with BPM control
+            - **Synthesizer** — dual-oscillator subtractive synth with ADSR, filter & LFO
+            - **Keyboard** — 2-octave piano with Electronic / Piano / Bass / Pad voices
+            - **FX Pedals** — Drive, Echo, Space (reverb), Chorus, Phaser, Compressor
+            - **Loop Machine** — 4-track event looper with record/play/overdub
+            - **AI Composer** — real-time key detection + style-based drum & melody generation
+
+            ### System Requirements
+            - Windows 10 or later (64-bit)
+            - No additional software required
+          files: |
+            electron/dist/*.exe
+          draft: false
+          prerelease: false
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

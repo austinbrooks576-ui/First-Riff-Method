@@ -1,0 +1,39 @@
+{
+  "name": "first-riff-studio",
+  "version": "1.0.0",
+  "description": "First Riff Studio — music production studio for Windows",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build:win": "electron-builder --win --x64"
+  },
+  "build": {
+    "appId": "com.firstriff.studio",
+    "productName": "First Riff Studio",
+    "directories": {
+      "output": "dist"
+    },
+    "extraResources": [
+      {
+        "from": "app/index.html",
+        "to": "index.html"
+      }
+    ],
+    "win": {
+      "target": [
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "portable", "arch": ["x64"] }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true
+    }
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.0.0"
+  }
+}
