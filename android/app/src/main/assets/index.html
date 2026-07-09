@@ -245,82 +245,111 @@ input[type=range]{width:100%;accent-color:var(--teal);height:20px;cursor:pointer
 body.studio #header,body.studio #tabs,body.studio #panels{display:none;}
 body.studio #app{max-width:none;border:none;}
 body.studio #studio{
-  display:grid;flex:1;min-height:0;padding:8px;gap:8px;
-  grid-template-columns:minmax(340px,1.1fr) minmax(300px,1fr) minmax(290px,.95fr);
-  grid-template-rows:auto minmax(0,1.15fr) minmax(0,1fr) minmax(0,.95fr) auto;
+  display:grid;flex:1;min-height:0;padding:6px;gap:6px;font-size:10px;
+  grid-template-columns:minmax(330px,1.05fr) minmax(300px,1.05fr) minmax(280px,.9fr);
+  grid-template-rows:30px minmax(0,1.15fr) minmax(0,1fr) 40px;
   grid-template-areas:
     "banner banner banner"
     "pads   keys   wave"
     "seq    keys   fx"
-    "rloop  kloop  fx"
     "master master master";
 }
-.slot-title{font-size:9px;font-weight:800;letter-spacing:.12em;color:var(--mute);text-transform:uppercase;margin-bottom:6px;flex-shrink:0;}
-#slot-pads,#slot-seq,#slot-keys,#slot-rloop,#slot-kloop,#slot-fx,#slot-wave,#slot-master{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:8px;min-height:0;min-width:0;}
-#slot-pads{grid-area:pads;display:flex;flex-direction:column;}
+.slot-title{font-size:8px;font-weight:800;letter-spacing:.12em;color:var(--mute);text-transform:uppercase;margin-bottom:5px;flex-shrink:0;cursor:grab;position:relative;padding-right:16px;}
+#slot-pads,#slot-seq,#slot-keys,#slot-fx,#slot-wave,#slot-master{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:7px;min-height:0;min-width:0;position:relative;}
+#slot-pads{grid-area:pads;display:flex;flex-direction:column;align-items:center;}
 #slot-seq{grid-area:seq;display:flex;flex-direction:column;overflow:hidden;}
-#slot-rloop{grid-area:rloop;display:flex;flex-direction:column;overflow-y:auto;}
-#slot-keys{grid-area:keys;display:flex;flex-direction:column;gap:6px;overflow:hidden;}
-#slot-kloop{grid-area:kloop;display:flex;flex-direction:column;overflow-y:auto;}
+#slot-keys{grid-area:keys;display:flex;flex-direction:column;gap:5px;overflow:hidden;}
 #slot-fx{grid-area:fx;display:flex;flex-direction:column;overflow-y:auto;}
 #slot-wave{grid-area:wave;display:flex;flex-direction:column;overflow-y:auto;}
-#slot-master{grid-area:master;display:flex;flex-direction:column;}
+#slot-master{grid-area:master;}
+.tile-drop{outline:2px dashed var(--teal);outline-offset:-2px;}
 
-/* banner */
-#slot-banner{grid-area:banner;display:flex;align-items:center;gap:12px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:8px 12px;}
-body.studio #logo{flex:0 0 auto;font-size:18px;}
-body.studio #ai-panel{position:static;display:flex !important;flex:1;min-width:0;gap:8px;padding:0;overflow:visible;background:none;}
-body.studio #ai-panel .ai-section{flex:1;min-width:0;margin-bottom:0;padding:7px;}
-body.studio #ai-panel .ai-info-val{font-size:13px;}
-body.studio #ai-panel .ai-title{margin-bottom:5px;font-size:8px;}
-body.studio #ai-panel .ai-btn{padding:6px;font-size:10px;}
-body.studio #ai-panel .ai-action-btn{padding:6px 4px;font-size:9px;}
-body.studio #ai-panel .ai-style-btn{min-width:0;padding:5px 3px;font-size:8px;}
-body.studio #ai-panel #ai-chroma{height:22px;margin-bottom:5px;}
-body.studio #ai-panel .ai-log{max-height:64px;font-size:9px;line-height:1.45;}
-#banner-ctrl{display:flex;align-items:center;gap:10px;flex-shrink:0;}
+/* hover ? tooltips */
+.qmark{position:absolute;top:-1px;right:0;width:12px;height:12px;border-radius:50%;background:var(--surf3);border:1px solid var(--bdr);color:var(--mute);font-size:8px;line-height:11px;text-align:center;cursor:help;text-transform:none;letter-spacing:0;}
+.qmark:hover{color:var(--txt);border-color:var(--teal);}
+.qmark:hover::after{content:attr(data-tip);position:absolute;right:0;top:15px;width:200px;background:var(--surf2);border:1px solid var(--bdr);border-radius:6px;padding:8px;font-size:9px;line-height:1.5;font-weight:600;color:var(--txt);z-index:3000;white-space:normal;text-align:left;text-transform:none;letter-spacing:0;box-shadow:0 8px 24px rgba(0,0,0,.5);}
 
-/* pads fill their slot 4x4 */
-body.studio #pad-grid{flex:1;margin-bottom:0;grid-template-columns:repeat(4,1fr);grid-template-rows:repeat(4,1fr);gap:6px;min-height:0;}
-body.studio .pad{aspect-ratio:unset;height:auto;min-height:0;}
+/* banner — thin strip: logo · help · marquee · AI controls · vol/bpm */
+#slot-banner{grid-area:banner;display:flex;align-items:center;gap:8px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:2px 10px;overflow:visible;}
+body.studio #logo{flex:0 0 auto;font-size:13px;}
+#help-btn{width:18px;height:18px;border-radius:50%;background:var(--surf3);border:1px solid var(--bdr);color:var(--teal);font-size:10px;font-weight:800;cursor:pointer;flex-shrink:0;line-height:1;}
+#help-btn:hover{background:var(--teal);color:#000;}
+#marquee{flex:1;min-width:0;overflow:hidden;height:18px;font-family:ui-monospace,'Cascadia Mono',Consolas,monospace;font-size:10px;line-height:18px;color:var(--green);white-space:nowrap;}
+#marquee-inner{display:inline-block;white-space:nowrap;padding-left:100%;animation:marq 90s linear infinite;}
+#marquee-inner .mstar{color:var(--yellow);}
+@keyframes marq{to{transform:translateX(-100%);}}
+.bnr-btn{background:var(--surf3);border:1px solid var(--bdr);border-radius:var(--r2);font-size:12px;padding:2px 7px;cursor:pointer;flex-shrink:0;line-height:1.4;}
+.bnr-btn:active{background:var(--purple);}
+#bnr-style{background:var(--surf3);border:1px solid var(--bdr);color:var(--txt);border-radius:var(--r2);font-size:8px;font-weight:700;padding:3px 4px;flex-shrink:0;outline:none;}
+#banner-ctrl{display:flex;align-items:center;gap:8px;flex-shrink:0;}
+body.studio #banner-ctrl #vis-canvas{width:60px;height:18px;}
+body.studio #banner-ctrl #bpm{width:44px;padding:2px 4px;font-size:11px;}
+body.studio #banner-ctrl #master-vol{width:50px;}
 
-/* sequencer slot */
-body.studio #seq-wrap{flex:1;overflow-y:auto;min-height:0;}
-body.studio #transport{margin-top:6px;flex-shrink:0;}
-body.studio .seq-step{height:15px;}
+/* pads — square buttons sized by JS to fill the tile with zero scrolling */
+body.studio #pad-grid{margin-bottom:0;gap:5px;min-height:0;justify-content:center;align-content:center;flex:1;overflow:hidden;}
+body.studio .pad{aspect-ratio:unset;height:auto;min-height:0;font-size:8px;padding:2px;}
+body.studio .pad strong{font-size:8.5px;}
 
-/* keys slot: keyboard + key sequencer stacked */
+/* sequencer — every row visible, no scrolling */
+body.studio #seq-wrap{flex:1;overflow:hidden;min-height:0;display:flex;flex-direction:column;padding:4px;}
+body.studio #seq-grid{flex:1;display:flex;flex-direction:column;gap:1px;min-height:0;}
+body.studio .seq-row{flex:1;min-height:0;gap:2px;}
+body.studio .seq-step{height:auto;flex:1;min-height:6px;}
+body.studio .seq-label{font-size:7px;}
+body.studio #transport{margin-top:4px;flex-shrink:0;}
+body.studio .tbtn{padding:4px;font-size:12px;}
+
+/* keys slot: keyboard + key sequencer stacked, all visible */
 #keys-side{display:contents;}
 body.studio #keys-side{display:contents;}
-body.studio #slot-keys .mode-bar{flex-wrap:wrap;margin-bottom:0;flex-shrink:0;}
-body.studio #slot-keys .mode-btn{font-size:9px;padding:5px 4px;}
+body.studio #slot-keys .mode-bar{flex-wrap:wrap;margin-bottom:0;flex-shrink:0;gap:4px;}
+body.studio #slot-keys .mode-btn{font-size:8px;padding:4px 3px;}
 body.studio #slot-keys #key-seq-wrap{margin-bottom:0;flex-shrink:0;}
-body.studio #slot-keys #key-seq{grid-template-columns:repeat(8,1fr);}
-body.studio #slot-keys .kseq-step{height:26px;font-size:9px;}
-body.studio #slot-keys #keyboard-wrap{flex:1;height:auto;min-height:120px;min-width:0;}
+body.studio #slot-keys #key-seq{grid-template-columns:repeat(16,1fr);gap:2px;}
+body.studio #slot-keys .kseq-step{height:22px;font-size:8px;}
+body.studio #slot-keys #keyboard-wrap{flex:1;height:auto;min-height:110px;min-width:0;}
 body.studio #slot-keys #keys-oct{flex-shrink:0;}
 
-/* loop slots: single track fills */
-body.studio .loop-track{flex-shrink:0;}
-
-/* master looper banner — horizontal strip along the bottom */
-#slot-master{flex-direction:row !important;align-items:center;gap:14px;padding:8px 12px;}
-#slot-master>.slot-title{margin-bottom:0;}
-body.studio .loop-master{margin:0;display:flex;flex-direction:row;align-items:center;flex-wrap:wrap;gap:10px;background:none;border:none;padding:0;flex:1;}
+/* master strip — taskbar-thin: loop strips + master controls in one row */
+#slot-master{display:flex;flex-direction:row;align-items:center;gap:10px;padding:3px 10px;}
+#slot-master>.slot-title{margin-bottom:0;padding-right:14px;}
+body.studio .loop-track{flex:0 1 220px;display:flex;align-items:center;gap:5px;padding:2px 6px;min-width:150px;}
+body.studio .lt-header{display:flex;align-items:center;gap:4px;margin:0;flex:1;min-width:0;}
+body.studio .lt-num{width:14px;height:14px;font-size:8px;line-height:14px;}
+body.studio .lt-name{font-size:8px;}
+body.studio .lt-vol{display:none;}
+body.studio .lt-waveform{display:none;}
+body.studio .lt-btns{display:flex;gap:3px;margin:0;}
+body.studio .lt-btn{padding:3px 8px;font-size:11px;line-height:1;}
+body.studio .loop-master{margin:0;display:flex;flex-direction:row;align-items:center;flex-wrap:nowrap;gap:8px;background:none;border:none;padding:0;flex:1;min-width:0;}
 body.studio .loop-master .lm-title{display:none;}
-body.studio .loop-master .lm-btns{margin:0 !important;gap:6px;}
-body.studio .loop-master .row{margin-top:0 !important;gap:12px;min-width:240px;}
-body.studio .loop-master .tbtn{padding:7px 12px;}
+body.studio .loop-master .lm-btns{margin:0 !important;gap:4px;}
+body.studio .loop-master .row{margin-top:0 !important;gap:8px;min-width:170px;flex:1;}
+body.studio .loop-master .range-wrap label{font-size:7px;}
+body.studio .loop-master .tbtn{padding:4px 9px;font-size:12px;line-height:1.2;}
 
 /* fx slot — roomy, takes former oscillator-list space */
-body.studio .pedals{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
-body.studio .pedal{min-width:0;}
+body.studio .pedals{display:grid;grid-template-columns:1fr 1fr;gap:5px;}
+body.studio .pedal{min-width:0;padding:6px;}
+body.studio .pedal-name{font-size:9px;}
+.fx-viz{height:16px;width:44px;flex-shrink:0;opacity:.9;}
 
 /* wave slot — skinny shaper on top, compact synth engine below */
-body.studio #wave-sec{margin-bottom:8px;flex-shrink:0;}
-body.studio #wave-editor{height:88px;}
-body.studio #slot-wave .synth-section{flex-shrink:0;margin-bottom:8px;padding:7px;}
-body.studio #slot-wave .synth-title{font-size:10px;}
+body.studio #wave-sec{margin-bottom:6px;flex-shrink:0;}
+body.studio #wave-editor{height:74px;}
+body.studio #slot-wave .synth-section{flex-shrink:0;margin-bottom:6px;padding:6px;}
+body.studio #slot-wave .synth-title{font-size:9px;}
+body.studio #slot-wave .range-wrap label{font-size:7.5px;}
+
+/* HELP + CUSTOMIZE MODALS */
+#help-modal,#customize-modal{display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:4000;align-items:center;justify-content:center;}
+#help-modal.open,#customize-modal.open{display:flex;}
+#customize-btn{width:18px;height:18px;border-radius:50%;background:var(--surf3);border:1px solid var(--bdr);font-size:9px;cursor:pointer;flex-shrink:0;line-height:1;padding:0;}
+#customize-btn:hover{border-color:var(--purple);}
+#help-card{width:min(480px,92vw);max-height:84vh;overflow-y:auto;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r3);padding:16px;}
+.help-row{font-size:10px;line-height:1.55;color:var(--txt);padding:5px 0;border-bottom:1px solid var(--bdr);}
+.help-row b{color:var(--teal);margin-right:6px;}
 
 /* ---- LANDSCAPE (phones only — desktop gets the standard layout) ---- */
 @media (orientation:landscape) and (max-height:520px){
@@ -416,9 +445,9 @@ body.studio #slot-wave .synth-title{font-size:10px;}
     <div id="seq-grid"></div>
   </div>
   <div id="transport">
-    <button class="tbtn" id="seq-play">▶ PLAY</button>
-    <button class="tbtn" id="seq-stop">■ STOP</button>
-    <button class="tbtn" id="seq-clear">✕ CLEAR</button>
+    <button class="tbtn" id="seq-play" title="Play">▶</button>
+    <button class="tbtn" id="seq-stop" title="Stop">■</button>
+    <button class="tbtn" id="seq-clear" title="Clear">✕</button>
   </div>
 </div>
 
@@ -781,9 +810,9 @@ body.studio #slot-wave .synth-title{font-size:10px;}
   <div class="loop-master">
     <div class="lm-title">MASTER LOOP</div>
     <div class="lm-btns">
-      <button class="tbtn" id="loop-all-play">▶ PLAY ALL</button>
-      <button class="tbtn" id="loop-all-stop">■ STOP ALL</button>
-      <button class="tbtn" id="loop-all-clear">✕ CLEAR ALL</button>
+      <button class="tbtn" id="loop-all-play" title="Play all">▶</button>
+      <button class="tbtn" id="loop-all-stop" title="Stop all">■</button>
+      <button class="tbtn" id="loop-all-clear" title="Clear all">✕</button>
     </div>
     <div class="row" style="margin-top:10px">
       <div class="range-wrap">
@@ -796,8 +825,8 @@ body.studio #slot-wave .synth-title{font-size:10px;}
       </div>
     </div>
     <div class="lm-btns" style="margin-top:10px">
-      <button class="tbtn" id="import-master-btn" style="color:var(--purple);border-color:var(--purple)">⬆ IMPORT MP3</button>
-      <button class="tbtn" id="export-btn" style="color:var(--blue);border-color:var(--blue)">⬇ EXPORT AUDIO</button>
+      <button class="tbtn" id="import-master-btn" title="Import backing MP3" style="color:var(--purple);border-color:var(--purple)">📥</button>
+      <button class="tbtn" id="export-btn" title="Export audio" style="color:var(--blue);border-color:var(--blue)">📤</button>
     </div>
   </div>
 </div>
@@ -861,15 +890,61 @@ body.studio #slot-wave .synth-title{font-size:10px;}
 
 <!-- STUDIO LAYOUT (desktop / fullscreen) — slots are filled by JS from the tab panels -->
 <div id="studio">
-  <div id="slot-banner"><div id="banner-ctrl"></div></div>
-  <div id="slot-pads"></div>
-  <div id="slot-seq"><div class="slot-title">STEP SEQUENCER</div></div>
-  <div id="slot-rloop"><div class="slot-title">RHYTHM LOOP</div></div>
-  <div id="slot-keys"><div id="keys-side"></div></div>
-  <div id="slot-kloop"><div class="slot-title">KEYS LOOP</div></div>
-  <div id="slot-wave"></div>
-  <div id="slot-fx"><div class="slot-title">FX</div></div>
-  <div id="slot-master"><div class="slot-title">MASTER LOOPER</div></div>
+  <div id="slot-banner">
+    <button id="help-btn" title="Help">?</button>
+    <button id="customize-btn" title="Customize">🖌</button>
+    <div id="marquee"><div id="marquee-inner"></div></div>
+    <button class="bnr-btn" id="bnr-analyze" title="Analyze sound">🔍</button>
+    <select id="bnr-style" title="Style">
+      <option value="memphis">MEMPHIS</option>
+      <option value="dirtysouth">DIRTY STH</option>
+      <option value="grime">TPA GRIME</option>
+      <option value="dubstep">DUBSTEP</option>
+    </select>
+    <button class="bnr-btn" id="bnr-drums" title="Generate + apply drum pattern">🥁</button>
+    <button class="bnr-btn" id="bnr-melody" title="Generate melody from key seq">🎼</button>
+    <div id="banner-ctrl"></div>
+  </div>
+  <div id="slot-pads"><div class="slot-title">PADS<span class="qmark" data-tip="DRUM PADS — tap to play. Right-click a pad to rename it, import an MP3 sample, or program its sequencer row with a pattern preset.">?</span></div></div>
+  <div id="slot-seq"><div class="slot-title">SEQ<span class="qmark" data-tip="STEP SEQUENCER — click cells to place hits, ▶ to run. Right-click a row for pattern presets (4-on-floor, offbeats, rolls).">?</span></div></div>
+  <div id="slot-keys"><div class="slot-title">KEYS<span class="qmark" data-tip="KEYBOARD + KEY SEQ — play keys, then click steps to place notes. Right-click a step for SUSTAIN. Right-click the keyboard to import a pitched sample. 🎼 in the banner arranges your placed notes into a melody.">?</span></div><div id="keys-side"></div></div>
+  <div id="slot-wave"><div class="slot-title">SYNTH<span class="qmark" data-tip="WAVE SHAPER — drag the green wave to sculpt the sound. ◀ ▶ switch between OSC 1 and OSC 2, each with its own wave. Sliders below tune the synth engine.">?</span></div></div>
+  <div id="slot-fx"><div class="slot-title">FX<span class="qmark" data-tip="FX PEDALS — toggle each pedal on/off and tweak knobs. The small graphics show what each effect does to the waveform.">?</span></div></div>
+  <div id="slot-master"><div class="slot-title">MASTER<span class="qmark" data-tip="MASTER — R records drums, K records keys. ●=record ▶=play ✕=clear. 📥 imports a backing MP3, 📤 records everything you play to an audio file.">?</span></div></div>
+</div>
+
+<!-- HELP / SKINS MODAL -->
+<div id="help-modal">
+  <div id="help-card">
+    <div style="display:flex;align-items:center;margin-bottom:8px"><b style="font-size:13px;letter-spacing:.06em">SKRiMPAD HELP</b><div style="flex:1"></div><button class="hbtn" id="help-close">✕</button></div>
+    <div class="help-row"><b>PADS</b> Tap to play. Right-click: rename, import MP3 sample, pattern presets.</div>
+    <div class="help-row"><b>SEQ</b> Click cells to program. ▶ runs pads + key seq together.</div>
+    <div class="help-row"><b>KEYS</b> Play a key, click KEY SEQ steps to place it. Right-click a step = sustain. Right-click keyboard = import pitched sample.</div>
+    <div class="help-row"><b>SYNTH</b> Drag the wave to shape the sound. ◀ ▶ picks OSC 1 / OSC 2.</div>
+    <div class="help-row"><b>FX</b> Toggle pedals; graphics show the wave effect.</div>
+    <div class="help-row"><b>LOOPS</b> R = drum looper, K = keys looper. ● record, ▶ play, ✕ clear. 📥 import backing track · 📤 export audio.</div>
+    <div class="help-row"><b>AI</b> 🔍 detects your key · 🥁 writes a style drum pattern · 🎼 arranges your key-seq notes into a melody.</div>
+    <div class="help-row"><b>🖌</b> Customize: skins and tile drag-to-rearrange.</div>
+  </div>
+</div>
+
+<!-- CUSTOMIZE MODAL (skins + drag system) -->
+<div id="customize-modal">
+  <div id="help-card">
+    <div style="display:flex;align-items:center;margin-bottom:8px"><b style="font-size:13px;letter-spacing:.06em">🖌 CUSTOMIZE</b><div style="flex:1"></div><button class="hbtn" id="customize-close">✕</button></div>
+    <div style="font-size:9px;font-weight:800;letter-spacing:.1em;color:var(--mute)">SKINS</div>
+    <div style="display:flex;gap:6px;margin-top:6px;flex-wrap:wrap">
+      <button class="hbtn" data-skin="default">DEFAULT</button>
+      <button class="hbtn" data-skin="barebones">BARE BONES</button>
+      <button class="hbtn" id="skin-import">📥 IMPORT (JSON)</button>
+      <button class="hbtn" id="skin-export">📤 EXPORT</button>
+    </div>
+    <div style="margin-top:14px;font-size:9px;font-weight:800;letter-spacing:.1em;color:var(--mute)">MOVE TILES</div>
+    <div style="display:flex;gap:8px;margin-top:6px;align-items:center">
+      <button class="hbtn" id="drag-toggle">DRAG: OFF</button>
+      <span style="font-size:9px;color:var(--mute)">When on, grab any tile by its title and drop it on another to swap positions.</span>
+    </div>
+  </div>
 </div>
 
 </div><!-- /app -->
@@ -1159,6 +1234,34 @@ function updateFXParam(fx, param, value) {
 // =============================================
 // DRUM SOUNDS
 // =============================================
+function playSub808(t) {
+  const osc = ctx.createOscillator(), g = ctx.createGain();
+  osc.type = 'sine'; osc.frequency.setValueAtTime(55, t); osc.frequency.exponentialRampToValueAtTime(30, t + 0.5);
+  g.gain.setValueAtTime(1, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.7);
+  osc.connect(g); g.connect(getOutput()); osc.start(t); osc.stop(t + 0.75);
+}
+
+function playSnap(t) {
+  const n = noise(0.06), nf = ctx.createBiquadFilter(), ng = ctx.createGain();
+  nf.type = 'bandpass'; nf.frequency.value = 1800; nf.Q.value = 8;
+  ng.gain.setValueAtTime(0.9, t); ng.gain.exponentialRampToValueAtTime(0.001, t + 0.05);
+  n.connect(nf); nf.connect(ng); ng.connect(getOutput()); n.start(t); n.stop(t + 0.06);
+}
+
+function playPedalHat(t) {
+  const n = noise(0.04), nf = ctx.createBiquadFilter(), ng = ctx.createGain();
+  nf.type = 'highpass'; nf.frequency.value = 6500;
+  ng.gain.setValueAtTime(0.25, t); ng.gain.exponentialRampToValueAtTime(0.001, t + 0.03);
+  n.connect(nf); nf.connect(ng); ng.connect(getOutput()); n.start(t); n.stop(t + 0.04);
+}
+
+function playZap(t) {
+  const osc = ctx.createOscillator(), g = ctx.createGain();
+  osc.type = 'sawtooth'; osc.frequency.setValueAtTime(1800, t); osc.frequency.exponentialRampToValueAtTime(80, t + 0.18);
+  g.gain.setValueAtTime(0.4, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.2);
+  osc.connect(g); g.connect(getOutput()); osc.start(t); osc.stop(t + 0.22);
+}
+
 const drumDefs = [
   { name:'KICK',   color:'var(--kick)',   fn: playKick   },
   { name:'SNARE',  color:'var(--snare)',  fn: playSnare  },
@@ -1176,6 +1279,10 @@ const drumDefs = [
   { name:'CLAVE',  color:'var(--fx1)',    fn: playClave  },
   { name:'FX 1',   color:'var(--fx2)',    fn: playFX1    },
   { name:'FX 2',   color:'var(--fx3)',    fn: playFX2    },
+  { name:'808 SUB',color:'var(--bass)',   fn: playSub808 },
+  { name:'SNAP',   color:'var(--pink)',   fn: playSnap   },
+  { name:'PDL HAT',color:'var(--hhat)',   fn: playPedalHat},
+  { name:'ZAP',    color:'var(--fx4)',    fn: playZap    },
 ];
 
 // Play a one-shot AudioBuffer (imported sample) at time t, optional pitch ratio
@@ -1345,7 +1452,7 @@ function playFX2(t) {
 // DRUM SEQUENCER
 // =============================================
 const SEQ_STEPS = 16;
-const SEQ_TRACKS = 16;
+const SEQ_TRACKS = 20;
 let seqPatterns = Array(SEQ_TRACKS).fill(null).map(() => new Array(SEQ_STEPS).fill(false));
 let seqPlaying = false;
 let seqStep = 0;
@@ -1777,9 +1884,9 @@ function updateLoopUI(idx) {
   numEl.className = 'lt-num' + (tr.recording ? ' rec' : tr.playing ? ' play' : '');
   numEl.textContent = tr.recording ? '●' : tr.playing ? '▶' : idx + 1;
   recBtn.classList.toggle('recording', tr.recording);
-  recBtn.textContent = tr.recording ? '■ STOP' : '● REC';
+  recBtn.textContent = tr.recording ? '■' : '●';
   playBtn.classList.toggle('playing', tr.playing);
-  playBtn.textContent = tr.playing ? '■ STOP' : '▶ PLAY';
+  playBtn.textContent = tr.playing ? '■' : '▶';
   if (waveEl) waveEl.textContent = tr.recording ? `● REC · ${tr.events.filter(e => e.type !== 'noteoff').length} events`
     : tr.duration ? `${(tr.duration/1000).toFixed(1)}s · ${tr.events.filter(e => e.type !== 'noteoff').length} events` : 'Empty';
 }
@@ -2149,9 +2256,9 @@ function buildLoopTracks() {
       </div>
       <div class="lt-waveform"><div class="lt-empty">Empty</div></div>
       <div class="lt-btns">
-        <button class="lt-btn rec-btn" data-track="${i}">● REC</button>
-        <button class="lt-btn play-btn" data-track="${i}">▶ PLAY</button>
-        <button class="lt-btn" data-clear="${i}">✕ CLEAR</button>
+        <button class="lt-btn rec-btn" data-track="${i}" title="Record">●</button>
+        <button class="lt-btn play-btn" data-track="${i}" title="Play">▶</button>
+        <button class="lt-btn" data-clear="${i}" title="Clear">✕</button>
       </div>`;
     tr.querySelector('.rec-btn').addEventListener('click', () => loopRecord(i));
     tr.querySelector('.play-btn').addEventListener('click', () => loopPlay(i));
@@ -2382,12 +2489,12 @@ function toggleExport() {
       setTimeout(() => URL.revokeObjectURL(url), 2000);
       try { masterGain.disconnect(exportDest); } catch(e2){}
       exportDest = null; exportRec = null;
-      btn.textContent = '⬇ EXPORT AUDIO';
+      btn.textContent = '📤';
       btn.style.background = ''; btn.style.color = 'var(--blue)';
       toast('Saved — check Downloads folder');
     };
     exportRec.start();
-    btn.textContent = '■ STOP & SAVE';
+    btn.textContent = '■';
     btn.style.background = 'var(--red)'; btn.style.color = '#fff';
     toast('Recording output... tap again to save');
   }
@@ -2506,12 +2613,17 @@ function aiDrawChroma(chroma) {
 
 function aiLog(msg, type) {
   const log = document.getElementById('ai-log');
-  if (!log) return;
-  const div = document.createElement('div');
-  div.className = 'ai-log-msg' + (type ? ' ' + type : '');
-  div.textContent = msg;
-  log.insertBefore(div, log.firstChild);
-  while (log.children.length > 10) log.removeChild(log.lastChild);
+  if (log) {
+    const div = document.createElement('div');
+    div.className = 'ai-log-msg' + (type ? ' ' + type : '');
+    div.textContent = msg;
+    log.insertBefore(div, log.firstChild);
+    while (log.children.length > 10) log.removeChild(log.lastChild);
+  }
+  // recent messages ride at the front of the running banner
+  marqueeLogs.unshift('>> ' + msg);
+  marqueeLogs = marqueeLogs.slice(0, 5);
+  if (typeof rebuildMarquee === 'function') rebuildMarquee();
 }
 
 function aiAnalyze() {
@@ -2642,15 +2754,13 @@ function moveTo(node, slot) {
 function enterStudio() {
   if (document.body.classList.contains('studio')) return;
   const $ = id => document.getElementById(id);
-  // banner: logo + AI panel + vis/bpm/vol on the right
+  // banner: logo up front; vis/bpm/vol at the right end (AI runs from the compact banner buttons)
   moveTo($('logo'), $('slot-banner'));
   $('slot-banner').insertBefore($('logo'), $('slot-banner').firstChild);
-  moveTo($('ai-panel'), $('slot-banner'));
-  $('slot-banner').insertBefore($('ai-panel'), $('banner-ctrl'));
   moveTo($('vis-canvas'), $('banner-ctrl'));
   moveTo($('vol-wrap'), $('banner-ctrl'));
   moveTo($('bpm-wrap'), $('banner-ctrl'));
-  // left column: pads (top), step sequencer (mid) — rhythm loop drops into slot-rloop
+  // left column: pads (top), step sequencer below — both fully visible, no scroll
   moveTo($('pad-grid'), $('slot-pads'));
   moveTo($('seq-wrap'), $('slot-seq'));
   moveTo($('transport'), $('slot-seq'));
@@ -2660,16 +2770,16 @@ function enterStudio() {
   moveTo($('keyboard-wrap'), side);
   moveTo($('key-seq-wrap'), side);
   moveTo($('keys-oct'), side);
-  // the two loops into their own tiles under pads and keyboard
-  moveTo($('lt-0'), $('slot-rloop'));
-  moveTo($('lt-1'), $('slot-kloop'));
-  // master looper (with import/export) into the bottom banner
+  // both loops become taskbar strips inside the master banner
+  moveTo($('lt-0'), $('slot-master'));
+  moveTo($('lt-1'), $('slot-master'));
   moveTo(document.querySelector('#loop-panel .loop-master'), $('slot-master'));
   // right column: skinny wave shaper + synth engine on top, FX filling below
   moveTo($('wave-sec'), $('slot-wave'));
   document.querySelectorAll('#synth-panel .synth-section, #keys-panel .synth-section').forEach(sec => moveTo(sec, $('slot-wave')));
   moveTo(document.querySelector('#fx-panel .pedals'), $('slot-fx'));
   document.body.classList.add('studio');
+  sizePads();
   drawWaveEditor();
 }
 function exitStudio() {
@@ -2685,6 +2795,168 @@ function exitStudio() {
 const studioMQ = window.matchMedia('(min-width:1100px) and (min-height:620px)');
 function applyLayout() { studioMQ.matches ? enterStudio() : exitStudio(); }
 studioMQ.addEventListener ? studioMQ.addEventListener('change', applyLayout) : studioMQ.addListener(applyLayout);
+
+// Square pads that always fit their tile — no scrolling, ever
+function sizePads() {
+  if (!document.body.classList.contains('studio')) return;
+  const slot = document.getElementById('slot-pads');
+  const grid = document.getElementById('pad-grid');
+  if (!slot || !grid || grid.parentNode !== slot) return;
+  const cols = 4, rows = Math.ceil(drumDefs.length / cols), gap = 5;
+  const w = slot.clientWidth - 16, h = slot.clientHeight - 30;
+  const size = Math.max(28, Math.floor(Math.min((w - gap * (cols - 1)) / cols, (h - gap * (rows - 1)) / rows)));
+  grid.style.gridTemplateColumns = `repeat(${cols}, ${size}px)`;
+  grid.style.gridAutoRows = size + 'px';
+}
+window.addEventListener('resize', () => { sizePads(); });
+
+// =============================================
+// MARQUEE — running AI insights + production advice (right to left)
+// =============================================
+const MARQUEE_TIPS = [
+  'TUTORIAL: right-click any drum pad to rename it or load your own MP3 sample',
+  'DJ TIP: cut the bass on one track before blending in the next — two basslines fight',
+  'TUTORIAL: play a key then click KEY SEQ steps to write a melody — right-click a step for sustain',
+  'PRODUCTION: leave space — mute the kick for 2 bars before a drop and it hits twice as hard',
+  'TUTORIAL: drag the green wave in SYNTH to invent your own oscillator sound',
+  'PRODUCTION: layer a CLAP on top of your SNARE for that dirty south crack',
+  'DJ TIP: match energy, not just BPM — a 140 grime cut can mix into 70 halftime',
+  'TUTORIAL: 🔍 listens and detects your key · 🥁 drops a style pattern · 🎼 arranges your notes',
+  'PRODUCTION: 808 SUB + KICK on the same step? shave the kick tail so they dont mud',
+  'TUTORIAL: R loop records your pad hits, K loop records your keys — ● then play',
+  'PRODUCTION: hats drive the groove — try 16TH NOTES then delete two steps for swing',
+  'DJ TIP: EQ before volume — sweep out the lows on an incoming track, then fade',
+  'TUTORIAL: 📥 imports a backing MP3 into the master looper · 📤 records your session to a file',
+  'PRODUCTION: compress after reverb, not before, to keep the tail from pumping',
+  'TUTORIAL: hover any ? for help · 🖌 opens skins and tile rearranging',
+  'PRODUCTION: memphis rap lives at 130-140 BPM with halftime snares on 2 and 4',
+  'DJ TIP: loop 4 bars of the outgoing track as a safety net while you mix in',
+  'PRODUCTION: detune OSC 2 by +7 semis for instant thickness on lead sounds'
+];
+let marqueeLogs = [];
+function rebuildMarquee() {
+  const el = document.getElementById('marquee-inner');
+  if (!el) return;
+  const items = [...marqueeLogs, ...MARQUEE_TIPS];
+  el.innerHTML = items.map(t => `${t} <span class="mstar">★</span> `).join('');
+}
+rebuildMarquee();
+
+// =============================================
+// FX VISUALS — tiny wave graphics per pedal
+// =============================================
+const FX_VIZ = {
+  dist:  '<svg class="fx-viz" viewBox="0 0 44 16"><path d="M0 8 Q4 0 8 1 L12 1 Q16 0 18 8 Q20 16 24 15 L28 15 Q32 16 34 8 Q36 0 40 1 L44 2" fill="none" stroke="var(--orange)" stroke-width="1.5"/></svg>',
+  delay: '<svg class="fx-viz" viewBox="0 0 44 16"><rect x="2" y="2" width="4" height="12" fill="var(--teal)"/><rect x="14" y="5" width="4" height="9" fill="var(--teal)" opacity=".65"/><rect x="26" y="8" width="4" height="6" fill="var(--teal)" opacity=".4"/><rect x="38" y="10" width="4" height="4" fill="var(--teal)" opacity=".22"/></svg>',
+  reverb:'<svg class="fx-viz" viewBox="0 0 44 16"><rect x="2" y="2" width="4" height="12" fill="var(--blue)"/><path d="M8 4 C20 4 34 14 44 15 L8 15 Z" fill="var(--blue)" opacity=".3"/></svg>',
+  chorus:'<svg class="fx-viz" viewBox="0 0 44 16"><path d="M0 8 Q5.5 0 11 8 T22 8 T33 8 T44 8" fill="none" stroke="var(--green)" stroke-width="1.4"/><path d="M2 8 Q7.5 16 13 8 T24 8 T35 8 T44 9" fill="none" stroke="var(--green)" stroke-width="1.4" opacity=".5"/></svg>',
+  phaser:'<svg class="fx-viz" viewBox="0 0 44 16"><path d="M0 8 Q5.5 1 11 8 T22 8 T33 8 T44 8" fill="none" stroke="var(--pink)" stroke-width="1.4"/><circle cx="11" cy="8" r="2.6" fill="none" stroke="var(--pink)" stroke-width="1"/><circle cx="33" cy="8" r="2.6" fill="none" stroke="var(--pink)" stroke-width="1"/></svg>',
+  comp:  '<svg class="fx-viz" viewBox="0 0 44 16"><path d="M0 14 L10 2 L14 2 L18 6 L44 6" fill="none" stroke="var(--yellow)" stroke-width="1.5"/><path d="M0 14 L10 2" stroke="var(--yellow)" stroke-width="1.5" opacity=".35" transform="translate(8 0)"/></svg>'
+};
+document.querySelectorAll('.pedal').forEach(p => {
+  const tog = p.querySelector('.pedal-toggle');
+  const fx = tog && tog.dataset.fx;
+  if (fx && FX_VIZ[fx]) {
+    const holder = document.createElement('span');
+    holder.innerHTML = FX_VIZ[fx];
+    p.querySelector('.pedal-header').insertBefore(holder.firstChild, tog);
+  }
+});
+
+// =============================================
+// HELP + CUSTOMIZE (skins & tile drag)
+// =============================================
+document.getElementById('help-btn').addEventListener('click', () => document.getElementById('help-modal').classList.add('open'));
+document.getElementById('help-close').addEventListener('click', () => document.getElementById('help-modal').classList.remove('open'));
+document.getElementById('customize-btn').addEventListener('click', () => document.getElementById('customize-modal').classList.add('open'));
+document.getElementById('customize-close').addEventListener('click', () => document.getElementById('customize-modal').classList.remove('open'));
+['help-modal','customize-modal'].forEach(id => {
+  document.getElementById(id).addEventListener('click', e => { if (e.target.id === id) e.target.classList.remove('open'); });
+});
+
+// SKINS — every color is a CSS variable, so a skin is just a variable map
+const SKIN_VARS = ['--bg','--surf','--surf2','--surf3','--bdr','--txt','--mute','--red','--orange','--yellow','--green','--teal','--blue','--purple','--pink','--lime','--kick','--snare','--hhat','--clap','--tom1','--tom2','--ride','--crash','--perc1','--perc2','--bass','--fx1','--fx2','--fx3','--fx4','--fx5'];
+const SKINS = {
+  default: null, // null = clear overrides, fall back to the stylesheet
+  barebones: {
+    '--bg':'#0e0e0e','--surf':'#151515','--surf2':'#1c1c1c','--surf3':'#242424','--bdr':'#333','--txt':'#e0e0e0','--mute':'#6e6e6e',
+    '--red':'#cfcfcf','--orange':'#bdbdbd','--yellow':'#d6d6d6','--green':'#efefef','--teal':'#cfcfcf','--blue':'#bdbdbd','--purple':'#d6d6d6','--pink':'#c4c4c4','--lime':'#e6e6e6',
+    '--kick':'#efefef','--snare':'#d6d6d6','--hhat':'#bdbdbd','--clap':'#cfcfcf','--tom1':'#c4c4c4','--tom2':'#b0b0b0','--ride':'#d6d6d6','--crash':'#e6e6e6','--perc1':'#cfcfcf','--perc2':'#bdbdbd','--bass':'#efefef','--fx1':'#c4c4c4','--fx2':'#d6d6d6','--fx3':'#b0b0b0','--fx4':'#cfcfcf','--fx5':'#bdbdbd'
+  }
+};
+function applySkin(map) {
+  const root = document.documentElement;
+  SKIN_VARS.forEach(v => root.style.removeProperty(v));
+  if (map) Object.entries(map).forEach(([k, v]) => { if (k.startsWith('--')) root.style.setProperty(k, v); });
+  drawWaveEditor();
+}
+document.querySelectorAll('[data-skin]').forEach(btn => {
+  btn.addEventListener('click', () => { applySkin(SKINS[btn.dataset.skin]); toast('Skin: ' + btn.dataset.skin); });
+});
+document.getElementById('skin-import').addEventListener('click', () => {
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = '.json,application/json';
+  inp.onchange = async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try { applySkin(JSON.parse(await file.text())); toast('Skin loaded: ' + file.name.slice(0, 20)); }
+    catch (err) { toast('Bad skin file — expected JSON of CSS variables'); }
+  };
+  inp.click();
+});
+document.getElementById('skin-export').addEventListener('click', () => {
+  const cs = getComputedStyle(document.documentElement);
+  const out = {};
+  SKIN_VARS.forEach(v => out[v] = cs.getPropertyValue(v).trim());
+  const blob = new Blob([JSON.stringify(out, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob); a.download = 'skrimpad-skin.json';
+  document.body.appendChild(a); a.click(); document.body.removeChild(a);
+  setTimeout(() => URL.revokeObjectURL(a.href), 2000);
+});
+
+// TILE DRAG — swap studio tiles by dragging their titles (toggled in Customize)
+let dragTilesOn = false;
+const DRAG_SLOTS = ['slot-pads','slot-seq','slot-keys','slot-wave','slot-fx'];
+document.getElementById('drag-toggle').addEventListener('click', e => {
+  dragTilesOn = !dragTilesOn;
+  e.target.textContent = 'DRAG: ' + (dragTilesOn ? 'ON' : 'OFF');
+  DRAG_SLOTS.forEach(id => {
+    const t = document.getElementById(id)?.querySelector('.slot-title');
+    if (t) t.draggable = dragTilesOn;
+  });
+  toast(dragTilesOn ? 'Drag tiles by their titles to swap' : 'Tile drag off');
+});
+DRAG_SLOTS.forEach(id => {
+  const el = document.getElementById(id);
+  const title = el.querySelector('.slot-title');
+  if (title) title.addEventListener('dragstart', e => {
+    if (!dragTilesOn) { e.preventDefault(); return; }
+    e.dataTransfer.setData('text/plain', id);
+  });
+  el.addEventListener('dragover', e => { if (dragTilesOn) { e.preventDefault(); el.classList.add('tile-drop'); } });
+  el.addEventListener('dragleave', () => el.classList.remove('tile-drop'));
+  el.addEventListener('drop', e => {
+    e.preventDefault(); el.classList.remove('tile-drop');
+    const src = e.dataTransfer.getData('text/plain');
+    if (!src || src === id) return;
+    const a = document.getElementById(src), b = el;
+    const ga = getComputedStyle(a).gridArea, gb = getComputedStyle(b).gridArea;
+    a.style.gridArea = gb; b.style.gridArea = ga;
+    sizePads();
+    toast('Tiles swapped');
+  });
+});
+
+// BANNER AI CONTROLS — compact one-tap versions of the AI tab
+document.getElementById('bnr-analyze').addEventListener('click', () => aiAnalyze());
+document.getElementById('bnr-style').addEventListener('change', e => {
+  AI.style = e.target.value;
+  const s = AI_STYLES[AI.style];
+  aiLog(`Style: ${s.label} · ${s.bpmRange[0]}–${s.bpmRange[1]} BPM`, 'info');
+});
+document.getElementById('bnr-drums').addEventListener('click', () => { aiSuggestDrums(); aiApplyDrums(); });
+document.getElementById('bnr-melody').addEventListener('click', () => aiGenerateMelody());
 
 // BUILD UI
 buildPads();
