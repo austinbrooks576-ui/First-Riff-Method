@@ -7,6 +7,7 @@ function createWindow() {
     height: 800,
     minWidth: 480,
     minHeight: 600,
+    fullscreen: true,
     webPreferences: {
       nodeIntegration: false,
       contextIsolation: true,
@@ -14,6 +15,18 @@ function createWindow() {
     title: 'SKRiMPAD',
     backgroundColor: '#0a0a0a',
     autoHideMenuBar: true,
+  });
+
+  // F11 toggles fullscreen, Esc exits it
+  win.webContents.on('before-input-event', (event, input) => {
+    if (input.type !== 'keyDown') return;
+    if (input.key === 'F11') {
+      win.setFullScreen(!win.isFullScreen());
+      event.preventDefault();
+    } else if (input.key === 'Escape' && win.isFullScreen()) {
+      win.setFullScreen(false);
+      event.preventDefault();
+    }
   });
 
   const htmlPath = app.isPackaged
