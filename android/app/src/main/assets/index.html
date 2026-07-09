@@ -212,8 +212,8 @@ input[type=range]{width:100%;accent-color:var(--teal);height:20px;cursor:pointer
 .ai-log-msg.tip{color:var(--yellow);}
 .ai-log-msg.info{color:var(--txt);}
 
-/* ---- LANDSCAPE ---- */
-@media (orientation:landscape){
+/* ---- LANDSCAPE (phones only — desktop gets the standard layout) ---- */
+@media (orientation:landscape) and (max-height:520px){
   /* Tighter header */
   #header{padding:4px 10px;}
   #vis-canvas{width:70px;height:22px;}
@@ -256,6 +256,15 @@ input[type=range]{width:100%;accent-color:var(--teal);height:20px;cursor:pointer
 
   /* Transport buttons */
   .tbtn{padding:7px;}
+}
+
+/* ---- DESKTOP (Windows app / large browser windows) ---- */
+@media (min-width:900px) and (min-height:600px){
+  body{background:#050608;}
+  #app{max-width:560px;margin:0 auto;border-left:1px solid var(--bdr);border-right:1px solid var(--bdr);}
+  .seq-step{height:20px;}
+  .seq-label{font-size:9px;}
+  #keyboard-wrap{height:240px;}
 }
 </style>
 </head>
@@ -658,6 +667,7 @@ input[type=range]{width:100%;accent-color:var(--teal);height:20px;cursor:pointer
         <input type="range" id="loop-quant" min="0" max="1" step="1" value="1">
       </div>
     </div>
+    <button class="tbtn" id="export-btn" style="width:100%;margin-top:10px;color:var(--blue);border-color:var(--blue)">⬇ EXPORT AUDIO</button>
   </div>
 </div>
 
