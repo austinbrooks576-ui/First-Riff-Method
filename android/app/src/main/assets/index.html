@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,user-scalable=no,maximum-scale=1">
-<title>First Riff Studio</title>
+<title>SKRiMPAD</title>
 <style>
 :root{
   --bg:#0A0B0F;--surf:#12141A;--surf2:#1A1D25;--surf3:#222630;
@@ -188,6 +188,18 @@ input[type=range]{width:100%;accent-color:var(--teal);height:20px;cursor:pointer
 /* Scrollbar for panels */
 .panel{scrollbar-width:thin;scrollbar-color:var(--bdr) transparent;}
 
+/* WAVE SHAPER */
+#wave-editor{width:100%;height:110px;display:block;background:#04120b;border:1px solid rgba(0,230,118,.25);border-radius:var(--r2);cursor:crosshair;touch-action:none;}
+.ws-hint{color:var(--mute);font-weight:600;font-size:9px;letter-spacing:.06em;margin-left:6px;}
+#wave-status{font-size:10px;font-weight:700;color:var(--mute);letter-spacing:.05em;}
+#wave-status.live{color:var(--green);}
+
+/* CONTEXT MENU (sequencer row programmer) */
+#ctx-menu{position:fixed;display:none;z-index:2000;background:var(--surf2);border:1px solid var(--bdr);border-radius:var(--r2);min-width:170px;box-shadow:0 8px 24px rgba(0,0,0,.55);overflow:hidden;}
+.ctx-title{padding:8px 12px 6px;font-size:9px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;border-bottom:1px solid var(--bdr);}
+.ctx-item{padding:9px 12px;font-size:11px;font-weight:700;color:var(--txt);cursor:pointer;transition:background .1s;}
+.ctx-item:hover,.ctx-item:active{background:var(--surf3);}
+
 /* AI COMPOSER */
 .ai-section{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:10px;margin-bottom:8px;}
 .ai-title{font-size:10px;font-weight:800;letter-spacing:.12em;text-transform:uppercase;color:var(--purple);margin-bottom:8px;}
@@ -273,7 +285,7 @@ input[type=range]{width:100%;accent-color:var(--teal);height:20px;cursor:pointer
 
 <!-- HEADER -->
 <div id="header">
-  <div id="logo">First Riff <span>Studio</span></div>
+  <div id="logo">SKRiM<span>PAD</span></div>
   <div id="bpm-wrap">
     <label>BPM</label>
     <input id="bpm" type="number" min="40" max="300" value="120">
@@ -314,6 +326,15 @@ input[type=range]{width:100%;accent-color:var(--teal);height:20px;cursor:pointer
 
 <!-- SYNTH -->
 <div class="panel" id="synth-panel">
+  <!-- WAVE SHAPER -->
+  <div class="synth-section">
+    <div class="synth-title">WAVE SHAPER <span class="ws-hint">DRAG THE WAVE TO SCULPT OSC 1</span></div>
+    <canvas id="wave-editor" width="640" height="110"></canvas>
+    <div class="row" style="margin-top:6px;align-items:center">
+      <button class="hbtn" id="wave-reset">RESET SINE</button>
+      <span id="wave-status">STOCK WAVE — SINE</span>
+    </div>
+  </div>
   <!-- OSC 1 -->
   <div class="synth-section">
     <div class="synth-title">OSC 1</div>
@@ -1185,7 +1206,7 @@ function playFX2(t) {
 // DRUM SEQUENCER
 // =============================================
 const SEQ_STEPS = 16;
-const SEQ_TRACKS = 8;
+const SEQ_TRACKS = 16;
 let seqPatterns = Array(SEQ_TRACKS).fill(null).map(() => new Array(SEQ_STEPS).fill(false));
 let seqPlaying = false;
 let seqStep = 0;
@@ -1244,8 +1265,112 @@ const synth = {
   keyMode: 'electronic',
   glide: 0, vibrato: 0, brightness: 50,
   activeNotes: new Map(),
-  lfoNode: null, lfoGain: null
+  lfoNode: null, lfoGain: null,
+  useCustomWave: false, customWave: null, customWaveDirty: false
 };
+
+// =============================================
+// WAVE SHAPER — drawable oscillator wave (EKG style)
+// =============================================
+const WAVE_N = 128;
+const waveSamples = new Float32Array(WAVE_N);
+
+function waveFromType(type) {
+  for (let i = 0; i < WAVE_N; i++) {
+    const ph = i / WAVE_N;
+    if (type === 'sine') waveSamples[i] = Math.sin(2 * Math.PI * ph);
+    else if (type === 'square') waveSamples[i] = ph < 0.5 ? 1 : -1;
+    else if (type === 'sawtooth') waveSamples[i] = 2 * ph - 1;
+    else waveSamples[i] = ph < 0.25 ? 4 * ph : ph < 0.75 ? 2 - 4 * ph : 4 * ph - 4;
+  }
+}
+waveFromType('sine');
+
+function rebuildCustomWave() {
+  if (!audioReady) { synth.customWaveDirty = true; return; }
+  const K = 48;
+  const real = new Float32Array(K + 1), imag = new Float32Array(K + 1);
+  for (let k = 1; k <= K; k++) {
+    let a = 0, b = 0;
+    for (let n = 0; n < WAVE_N; n++) {
+      const ang = 2 * Math.PI * k * n / WAVE_N;
+      a += waveSamples[n] * Math.cos(ang);
+      b += waveSamples[n] * Math.sin(ang);
+    }
+    real[k] = a * 2 / WAVE_N;
+    imag[k] = b * 2 / WAVE_N;
+  }
+  synth.customWave = ctx.createPeriodicWave(real, imag);
+  synth.customWaveDirty = false;
+}
+
+function drawWaveEditor() {
+  const cv = document.getElementById('wave-editor');
+  if (!cv) return;
+  const c = cv.getContext('2d');
+  const W = cv.width, H = cv.height;
+  c.fillStyle = '#04120b'; c.fillRect(0, 0, W, H);
+  c.strokeStyle = 'rgba(0,230,118,.09)'; c.lineWidth = 1;
+  for (let x = 0; x <= W; x += W / 16) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x, H); c.stroke(); }
+  for (let y = 0; y <= H; y += H / 6) { c.beginPath(); c.moveTo(0, y); c.lineTo(W, y); c.stroke(); }
+  c.strokeStyle = 'rgba(0,230,118,.3)';
+  c.beginPath(); c.moveTo(0, H / 2); c.lineTo(W, H / 2); c.stroke();
+  c.strokeStyle = '#00E676'; c.lineWidth = 2;
+  c.shadowColor = '#00E676'; c.shadowBlur = 10;
+  c.beginPath();
+  for (let i = 0; i < WAVE_N; i++) {
+    const x = i / (WAVE_N - 1) * W;
+    const y = H / 2 - waveSamples[i] * (H / 2 - 8);
+    i ? c.lineTo(x, y) : c.moveTo(x, y);
+  }
+  c.stroke();
+  c.shadowBlur = 0;
+}
+
+function setWaveStatus(live) {
+  const st = document.getElementById('wave-status');
+  if (!st) return;
+  st.textContent = live ? 'CUSTOM WAVE LIVE' : ('STOCK WAVE — ' + synth.osc1Type.toUpperCase());
+  st.classList.toggle('live', live);
+}
+
+function initWaveEditor() {
+  const cv = document.getElementById('wave-editor');
+  let dragging = false;
+
+  const applyDrag = e => {
+    const rect = cv.getBoundingClientRect();
+    const xi = Math.round((e.clientX - rect.left) / rect.width * (WAVE_N - 1));
+    const val = Math.max(-1, Math.min(1, 1 - 2 * (e.clientY - rect.top) / rect.height));
+    for (let i = 0; i < WAVE_N; i++) {
+      const d = Math.abs(i - xi);
+      if (d < 10) {
+        const w = Math.exp(-d * d / 18);
+        waveSamples[i] = waveSamples[i] * (1 - w) + val * w;
+      }
+    }
+    synth.useCustomWave = true;
+    synth.customWaveDirty = true;
+    drawWaveEditor();
+    setWaveStatus(true);
+  };
+
+  cv.addEventListener('pointerdown', e => { e.preventDefault(); dragging = true; cv.setPointerCapture(e.pointerId); applyDrag(e); });
+  cv.addEventListener('pointermove', e => { if (dragging) applyDrag(e); });
+  cv.addEventListener('pointerup', () => { dragging = false; if (audioReady) rebuildCustomWave(); });
+  cv.addEventListener('pointercancel', () => { dragging = false; });
+
+  document.getElementById('wave-reset').addEventListener('click', () => {
+    waveFromType('sine');
+    synth.useCustomWave = false; synth.customWave = null;
+    drawWaveEditor();
+    setWaveStatus(false);
+    toast('Wave reset to sine');
+  });
+
+  drawWaveEditor();
+  setWaveStatus(false);
+}
 
 function noteFreq(note, octave) {
   const notes = ['C','C#','D','D#','E','F','F#','G','G#','A','A#','B'];
@@ -1273,6 +1398,10 @@ function noteOn(midi) {
 
   o1.type = synth.osc1Type;
   o2.type = synth.osc2Type;
+  if (synth.useCustomWave) {
+    if (synth.customWaveDirty || !synth.customWave) rebuildCustomWave();
+    if (synth.customWave) o1.setPeriodicWave(synth.customWave);
+  }
 
   const f1 = freq * Math.pow(2, synth.o1Oct) * Math.pow(2, synth.o1Semi/12) * Math.pow(2, synth.o1Det/1200);
   const f2 = freq * Math.pow(2, synth.o2Oct) * Math.pow(2, synth.o2Semi/12) * Math.pow(2, synth.o2Det/1200);
@@ -1352,7 +1481,7 @@ const looper = {
   tracks: Array(4).fill(null).map(() => ({
     events: [], duration: 0, startTime: 0,
     recording: false, playing: false, muted: false, volume: 1,
-    playTimer: null
+    playTimer: null, eventTimers: [], liveNotes: new Set()
   })),
   barsToMs() { return (4 * 60000 / parseInt(document.getElementById('bpm').value)) * parseInt(document.getElementById('loop-len').value); }
 };
@@ -1382,14 +1511,15 @@ function loopPlay(idx) {
 function scheduleLoopPlay(idx) {
   const tr = looper.tracks[idx];
   if (!tr.playing) return;
-  const now = performance.now();
+  tr.eventTimers = [];
   tr.events.forEach(ev => {
     const delay = ev.time % tr.duration;
-    setTimeout(() => {
+    tr.eventTimers.push(setTimeout(() => {
       if (!tr.playing || tr.muted) return;
       if (ev.type === 'drum') drumDefs[ev.drumIdx].fn(ctx.currentTime);
-      else if (ev.type === 'note') noteOn(ev.midi);
-    }, delay);
+      else if (ev.type === 'note') { noteOn(ev.midi); tr.liveNotes.add(ev.midi); }
+      else if (ev.type === 'noteoff') { noteOff(ev.midi); tr.liveNotes.delete(ev.midi); }
+    }, delay));
   });
   tr.playTimer = setTimeout(() => scheduleLoopPlay(idx), tr.duration);
 }
@@ -1398,6 +1528,10 @@ function loopStop(idx) {
   const tr = looper.tracks[idx];
   tr.playing = false;
   clearTimeout(tr.playTimer);
+  tr.eventTimers.forEach(clearTimeout);
+  tr.eventTimers = [];
+  tr.liveNotes.forEach(m => noteOff(m));
+  tr.liveNotes.clear();
   updateLoopUI(idx);
 }
 
@@ -1405,6 +1539,8 @@ function loopCapture(type, data) {
   looper.tracks.forEach((tr, i) => {
     if (tr.recording) {
       tr.events.push({ time: performance.now() - tr.startTime, type, ...data });
+      const el = document.querySelector(`#lt-${i} .lt-empty`);
+      if (el) el.textContent = `● REC · ${tr.events.filter(e => e.type !== 'noteoff').length} events`;
     }
   });
 }
@@ -1424,7 +1560,8 @@ function updateLoopUI(idx) {
   recBtn.textContent = tr.recording ? '■ STOP' : '● REC';
   playBtn.classList.toggle('playing', tr.playing);
   playBtn.textContent = tr.playing ? '■ STOP' : '▶ PLAY';
-  if (waveEl) waveEl.textContent = tr.duration ? `${(tr.duration/1000).toFixed(1)}s · ${tr.events.length} events` : 'Empty';
+  if (waveEl) waveEl.textContent = tr.recording ? `● REC · ${tr.events.filter(e => e.type !== 'noteoff').length} events`
+    : tr.duration ? `${(tr.duration/1000).toFixed(1)}s · ${tr.events.filter(e => e.type !== 'noteoff').length} events` : 'Empty';
 }
 
 // =============================================
@@ -1490,12 +1627,22 @@ function buildPads() {
     };
 
     pad.addEventListener('touchstart', e => { e.preventDefault(); triggerPad(); }, { passive: false });
-    pad.addEventListener('mousedown', triggerPad);
+    pad.addEventListener('mousedown', e => { if (e.button === 0) triggerPad(); });
+    pad.addEventListener('contextmenu', e => { e.preventDefault(); openSeqMenu(i, e.clientX, e.clientY); });
     grid.appendChild(pad);
   });
 }
 
 // SEQUENCER
+function setSeqStep(ti, s, val) {
+  seqPatterns[ti][s] = val;
+  const step = document.querySelector(`.seq-step[data-track="${ti}"][data-step="${s}"]`);
+  if (step) {
+    step.classList.toggle('on', val);
+    step.style.background = val ? drumDefs[ti].color : '';
+  }
+}
+
 function buildSequencer() {
   const grid = document.getElementById('seq-grid');
   for (let ti = 0; ti < SEQ_TRACKS; ti++) {
@@ -1511,17 +1658,48 @@ function buildSequencer() {
       step.className = 'seq-step' + (s % 4 === 0 ? ' beat' : '');
       step.dataset.track = ti; step.dataset.step = s;
       if (s % 4 === 0) step.style.borderColor = 'var(--surf3)';
-      step.addEventListener('click', () => {
-        seqPatterns[ti][s] = !seqPatterns[ti][s];
-        step.classList.toggle('on', seqPatterns[ti][s]);
-        if (seqPatterns[ti][s]) step.style.background = drumDefs[ti].color;
-        else { step.style.background = ''; }
-      });
+      step.addEventListener('click', () => setSeqStep(ti, s, !seqPatterns[ti][s]));
       row.appendChild(step);
     }
+    row.addEventListener('contextmenu', e => { e.preventDefault(); openSeqMenu(ti, e.clientX, e.clientY); });
     grid.appendChild(row);
   }
 }
+
+// SEQ ROW PROGRAMMER — right-click (or long-press) a pad or sequencer row
+const SEQ_PRESETS = [
+  { label: '4 ON THE FLOOR', fill: s => s % 4 === 0 },
+  { label: 'OFFBEATS', fill: s => s % 4 === 2 },
+  { label: '8TH NOTES', fill: s => s % 2 === 0 },
+  { label: '16TH NOTES', fill: () => true },
+  { label: 'RANDOM FILL', fill: () => Math.random() < 0.4 },
+  { label: 'CLEAR ROW', fill: () => false }
+];
+
+const ctxMenu = document.createElement('div');
+ctxMenu.id = 'ctx-menu';
+document.body.appendChild(ctxMenu);
+
+function openSeqMenu(ti, x, y) {
+  ctxMenu.innerHTML = `<div class="ctx-title" style="color:${drumDefs[ti].color}">${drumDefs[ti].name} — PROGRAM ROW</div>`;
+  SEQ_PRESETS.forEach(p => {
+    const it = document.createElement('div');
+    it.className = 'ctx-item';
+    it.textContent = p.label;
+    it.addEventListener('click', () => {
+      for (let s = 0; s < SEQ_STEPS; s++) setSeqStep(ti, s, !!p.fill(s));
+      closeSeqMenu();
+      toast(`${drumDefs[ti].name}: ${p.label.toLowerCase()}`);
+    });
+    ctxMenu.appendChild(it);
+  });
+  ctxMenu.style.display = 'block';
+  const mw = ctxMenu.offsetWidth || 180, mh = ctxMenu.offsetHeight || 240;
+  ctxMenu.style.left = Math.max(4, Math.min(x, window.innerWidth - mw - 8)) + 'px';
+  ctxMenu.style.top = Math.max(4, Math.min(y, window.innerHeight - mh - 8)) + 'px';
+}
+function closeSeqMenu() { ctxMenu.style.display = 'none'; }
+document.addEventListener('click', e => { if (!ctxMenu.contains(e.target)) closeSeqMenu(); });
 
 // KEYBOARD
 let keyOctave = 4;
@@ -1551,7 +1729,7 @@ function buildKeyboard() {
       const midi = (oct * 12) + noteNames.indexOf(note);
 
       const on = () => { initAudio(); noteOn(midi); loopCapture('note', { midi }); k.classList.add('pressed'); };
-      const off = () => { if (!sustainOn) noteOff(midi); k.classList.remove('pressed'); };
+      const off = () => { if (!sustainOn) { noteOff(midi); loopCapture('noteoff', { midi }); } k.classList.remove('pressed'); };
 
       k.addEventListener('touchstart', e => { e.preventDefault(); on(); }, { passive: false });
       k.addEventListener('touchend', e => { e.preventDefault(); off(); }, { passive: false });
@@ -1569,10 +1747,10 @@ function buildKeyboard() {
   lk.innerHTML = `<div class="key-label">C${lastOct}</div>`;
   lk.style.minWidth = keyW + 'px';
   const lmidi = lastOct * 12;
-  lk.addEventListener('touchstart', e => { e.preventDefault(); initAudio(); noteOn(lmidi); lk.classList.add('pressed'); }, { passive: false });
-  lk.addEventListener('touchend', e => { e.preventDefault(); if(!sustainOn) noteOff(lmidi); lk.classList.remove('pressed'); }, { passive: false });
-  lk.addEventListener('mousedown', () => { initAudio(); noteOn(lmidi); });
-  lk.addEventListener('mouseup', () => { if(!sustainOn) noteOff(lmidi); });
+  lk.addEventListener('touchstart', e => { e.preventDefault(); initAudio(); noteOn(lmidi); loopCapture('note', { midi: lmidi }); lk.classList.add('pressed'); }, { passive: false });
+  lk.addEventListener('touchend', e => { e.preventDefault(); if(!sustainOn) { noteOff(lmidi); loopCapture('noteoff', { midi: lmidi }); } lk.classList.remove('pressed'); }, { passive: false });
+  lk.addEventListener('mousedown', () => { initAudio(); noteOn(lmidi); loopCapture('note', { midi: lmidi }); });
+  lk.addEventListener('mouseup', () => { if(!sustainOn) { noteOff(lmidi); loopCapture('noteoff', { midi: lmidi }); } });
   inner.appendChild(lk);
 
   // Black keys (absolute positioned)
@@ -1587,7 +1765,7 @@ function buildKeyboard() {
       const midi = oct * 12 + noteNames.indexOf(note);
 
       const on = () => { initAudio(); noteOn(midi); loopCapture('note', { midi }); k.classList.add('pressed'); };
-      const off = () => { if (!sustainOn) noteOff(midi); k.classList.remove('pressed'); };
+      const off = () => { if (!sustainOn) { noteOff(midi); loopCapture('noteoff', { midi }); } k.classList.remove('pressed'); };
       k.addEventListener('touchstart', e => { e.preventDefault(); on(); }, { passive: false });
       k.addEventListener('touchend', e => { e.preventDefault(); off(); }, { passive: false });
       k.addEventListener('mousedown', on);
@@ -1698,6 +1876,12 @@ bindValRange('bright','bright-val', v => synth.brightness = v);
       document.getElementById(id).querySelectorAll('.osc-btn').forEach(b => b.classList.remove('on'));
       btn.classList.add('on');
       synth[prop] = btn.dataset.wave;
+      if (prop === 'osc1Type') {
+        synth.useCustomWave = false; synth.customWave = null;
+        waveFromType(btn.dataset.wave);
+        drawWaveEditor();
+        setWaveStatus(false);
+      }
     });
   });
 });
@@ -1813,7 +1997,7 @@ function toggleExport() {
       const blob = new Blob(chunks, { type: exportRec.mimeType || 'audio/webm' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = 'first-riff-' + Date.now() + '.webm';
+      a.href = url; a.download = 'skrimpad-' + Date.now() + '.webm';
       document.body.appendChild(a); a.click(); document.body.removeChild(a);
       setTimeout(() => URL.revokeObjectURL(url), 2000);
       try { masterGain.disconnect(exportDest); } catch(e2){}
@@ -2125,6 +2309,7 @@ buildPads();
 buildSequencer();
 buildKeyboard();
 buildLoopTracks();
+initWaveEditor();
 
 // Default sequence preset
 [[0,0],[0,4],[0,8],[0,12],[1,4],[1,12],[2,0],[2,2],[2,4],[2,6],[2,8],[2,10],[2,12],[2,14]].forEach(([t,s]) => {

@@ -1,4 +1,4 @@
-name: Build First Riff Studio Windows App
+name: Build SKRiMPAD Windows App
 
 on:
   push:
@@ -44,15 +44,15 @@ jobs:
       - name: Upload Installer
         uses: actions/upload-artifact@v4
         with:
-          name: first-riff-studio-windows-installer
-          path: electron/dist/First Riff Studio Setup*.exe
+          name: skrimpad-windows-installer
+          path: electron/dist/SKRiMPAD Setup*.exe
           retention-days: 30
 
       - name: Upload Portable EXE
         uses: actions/upload-artifact@v4
         with:
-          name: first-riff-studio-windows-portable
-          path: electron/dist/First Riff Studio*.exe
+          name: skrimpad-windows-portable
+          path: electron/dist/SKRiMPAD*.exe
           if-no-files-found: warn
           retention-days: 30
 
@@ -61,19 +61,20 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: win-v1.0.${{ github.run_number }}
-          name: First Riff Studio Windows v1.0.${{ github.run_number }}
+          name: SKRiMPAD Windows v1.0.${{ github.run_number }}
           body: |
-            ## First Riff Studio for Windows
+            ## SKRiMPAD for Windows
 
             A full-featured music production studio packaged as a Windows desktop app.
 
             ### Download
-            - **Installer** (`First Riff Studio Setup *.exe`) — installs to Program Files with Start Menu + Desktop shortcuts
-            - **Portable** (`First Riff Studio *.exe`) — runs from anywhere, no install needed
+            - **Installer** (`SKRiMPAD Setup *.exe`) — installs to Program Files with Start Menu + Desktop shortcuts
+            - **Portable** (`SKRiMPAD *.exe`) — runs from anywhere, no install needed
 
             ### Features
             - **16 Drum Pads** — synthesized kick, snare, hi-hats, cymbals, claps & FX
-            - **Step Sequencer** — 16-track × 16-step drum machine with BPM control
+            - **Step Sequencer** — 16-track × 16-step drum machine with right-click pattern programming
+            - **Wave Shaper** — draggable EKG-style oscillator wave editor
             - **Synthesizer** — dual-oscillator subtractive synth with ADSR, filter & LFO
             - **Keyboard** — 2-octave piano with Electronic / Piano / Bass / Pad voices
             - **FX Pedals** — Drive, Echo, Space (reverb), Chorus, Phaser, Compressor

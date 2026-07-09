@@ -1,7 +1,7 @@
 {
-  "name": "first-riff-studio",
+  "name": "skrimpad",
   "version": "1.0.0",
-  "description": "First Riff Studio — music production studio for Windows",
+  "description": "SKRiMPAD — music production studio for Windows",
   "main": "main.js",
   "repository": {
     "type": "git",
@@ -13,7 +13,7 @@
   },
   "build": {
     "appId": "com.firstriff.studio",
-    "productName": "First Riff Studio",
+    "productName": "SKRiMPAD",
     "publish": [],
     "directories": {
       "output": "dist"

@@ -1,4 +1,4 @@
-name: Build First Riff Studio APK
+name: Build SKRiMPAD APK
 
 on:
   push:
@@ -75,9 +75,9 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}
-          name: First Riff Studio v1.0.${{ github.run_number }}
+          name: SKRiMPAD v1.0.${{ github.run_number }}
           body: |
-            ## First Riff Studio APK
+            ## SKRiMPAD APK
 
             A full-featured mobile music studio with:
             - **16 Drum Pads** — synthesized kick, snare, hi-hats, cymbals, claps, FX and more

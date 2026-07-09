@@ -11,7 +11,7 @@ function createWindow() {
       nodeIntegration: false,
       contextIsolation: true,
     },
-    title: 'First Riff Studio',
+    title: 'SKRiMPAD',
     backgroundColor: '#0a0a0a',
     autoHideMenuBar: true,
   });
