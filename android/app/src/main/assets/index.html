@@ -232,29 +232,39 @@ input[type=range]{width:100%;accent-color:var(--teal);height:20px;cursor:pointer
 .kseq-step.on{background:var(--teal);border-color:var(--teal);}
 .kseq-step.cur{box-shadow:0 0 0 2px rgba(255,255,255,.55);}
 
+/* WAVE SHAPER arrows */
+.ws-arrow{background:var(--surf3);border:1px solid var(--bdr);color:var(--teal);border-radius:4px;width:22px;height:20px;font-size:11px;cursor:pointer;flex-shrink:0;line-height:1;}
+.ws-arrow:active{background:var(--teal);color:#000;}
+
+/* KEY SEQ sustain marker */
+.kseq-step.sus{box-shadow:inset 0 -3px 0 var(--yellow);}
+.kseq-step.sus.on{box-shadow:inset 0 -3px 0 var(--yellow);}
+
 /* ---- STUDIO LAYOUT (fullscreen desktop) ---- */
 #studio{display:none;}
 body.studio #header,body.studio #tabs,body.studio #panels{display:none;}
 body.studio #app{max-width:none;border:none;}
 body.studio #studio{
   display:grid;flex:1;min-height:0;padding:8px;gap:8px;
-  grid-template-columns:minmax(360px,1.15fr) minmax(250px,.75fr) minmax(300px,.95fr);
-  grid-template-rows:auto minmax(0,1.1fr) minmax(0,1fr) 236px;
+  grid-template-columns:minmax(340px,1.1fr) minmax(300px,1fr) minmax(290px,.95fr);
+  grid-template-rows:auto minmax(0,1.15fr) minmax(0,1fr) minmax(0,.95fr) auto;
   grid-template-areas:
     "banner banner banner"
-    "pads   loop   wave"
-    "seq    loop   osc"
-    "keys   fx     osc";
+    "pads   keys   wave"
+    "seq    keys   fx"
+    "rloop  kloop  fx"
+    "master master master";
 }
 .slot-title{font-size:9px;font-weight:800;letter-spacing:.12em;color:var(--mute);text-transform:uppercase;margin-bottom:6px;flex-shrink:0;}
-#slot-pads,#slot-seq,#slot-keys,#slot-loop,#slot-fx,#slot-wave,#slot-osc{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:8px;min-height:0;min-width:0;}
+#slot-pads,#slot-seq,#slot-keys,#slot-rloop,#slot-kloop,#slot-fx,#slot-wave,#slot-master{background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:8px;min-height:0;min-width:0;}
 #slot-pads{grid-area:pads;display:flex;flex-direction:column;}
 #slot-seq{grid-area:seq;display:flex;flex-direction:column;overflow:hidden;}
-#slot-keys{grid-area:keys;display:flex;gap:8px;overflow:hidden;}
-#slot-loop{grid-area:loop;display:flex;flex-direction:column;overflow-y:auto;}
+#slot-rloop{grid-area:rloop;display:flex;flex-direction:column;overflow-y:auto;}
+#slot-keys{grid-area:keys;display:flex;flex-direction:column;gap:6px;overflow:hidden;}
+#slot-kloop{grid-area:kloop;display:flex;flex-direction:column;overflow-y:auto;}
 #slot-fx{grid-area:fx;display:flex;flex-direction:column;overflow-y:auto;}
-#slot-wave{grid-area:wave;display:flex;flex-direction:column;}
-#slot-osc{grid-area:osc;display:flex;flex-direction:column;overflow-y:auto;}
+#slot-wave{grid-area:wave;display:flex;flex-direction:column;overflow-y:auto;}
+#slot-master{grid-area:master;display:flex;flex-direction:column;}
 
 /* banner */
 #slot-banner{grid-area:banner;display:flex;align-items:center;gap:12px;background:var(--surf);border:1px solid var(--bdr);border-radius:var(--r);padding:8px 12px;}
@@ -277,31 +287,40 @@ body.studio .pad{aspect-ratio:unset;height:auto;min-height:0;}
 /* sequencer slot */
 body.studio #seq-wrap{flex:1;overflow-y:auto;min-height:0;}
 body.studio #transport{margin-top:6px;flex-shrink:0;}
-body.studio .seq-step{height:16px;}
+body.studio .seq-step{height:15px;}
 
-/* keys slot */
-#keys-side{display:none;}
-body.studio #keys-side{display:flex;width:230px;flex-shrink:0;flex-direction:column;gap:6px;overflow-y:auto;}
-body.studio #keys-side .mode-bar{flex-wrap:wrap;margin-bottom:0;}
-body.studio #keys-side .mode-btn{font-size:9px;padding:5px 4px;}
-body.studio #keys-side #key-seq-wrap{margin-bottom:0;}
-body.studio #keys-side #key-seq{grid-template-columns:repeat(4,1fr);}
-body.studio #keys-side .kseq-step{height:24px;font-size:9px;}
-body.studio #keyboard-wrap{flex:1;height:auto;min-width:0;}
+/* keys slot: keyboard + key sequencer stacked */
+#keys-side{display:contents;}
+body.studio #keys-side{display:contents;}
+body.studio #slot-keys .mode-bar{flex-wrap:wrap;margin-bottom:0;flex-shrink:0;}
+body.studio #slot-keys .mode-btn{font-size:9px;padding:5px 4px;}
+body.studio #slot-keys #key-seq-wrap{margin-bottom:0;flex-shrink:0;}
+body.studio #slot-keys #key-seq{grid-template-columns:repeat(8,1fr);}
+body.studio #slot-keys .kseq-step{height:26px;font-size:9px;}
+body.studio #slot-keys #keyboard-wrap{flex:1;height:auto;min-height:120px;min-width:0;}
+body.studio #slot-keys #keys-oct{flex-shrink:0;}
 
-/* looper slot */
-body.studio .loop-tracks{display:flex !important;flex-direction:column;gap:6px;}
+/* loop slots: single track fills */
 body.studio .loop-track{flex-shrink:0;}
-body.studio .loop-master{margin-top:6px;flex-shrink:0;}
 
-/* fx slot */
+/* master looper banner — horizontal strip along the bottom */
+#slot-master{flex-direction:row !important;align-items:center;gap:14px;padding:8px 12px;}
+#slot-master>.slot-title{margin-bottom:0;}
+body.studio .loop-master{margin:0;display:flex;flex-direction:row;align-items:center;flex-wrap:wrap;gap:10px;background:none;border:none;padding:0;flex:1;}
+body.studio .loop-master .lm-title{display:none;}
+body.studio .loop-master .lm-btns{margin:0 !important;gap:6px;}
+body.studio .loop-master .row{margin-top:0 !important;gap:12px;min-width:240px;}
+body.studio .loop-master .tbtn{padding:7px 12px;}
+
+/* fx slot — roomy, takes former oscillator-list space */
 body.studio .pedals{display:grid;grid-template-columns:1fr 1fr;gap:6px;}
 body.studio .pedal{min-width:0;}
 
-/* wave + osc slots */
-body.studio #wave-sec{margin-bottom:0;flex:1;display:flex;flex-direction:column;}
-body.studio #wave-editor{flex:1;height:auto;min-height:70px;}
-body.studio #slot-osc .synth-section{flex-shrink:0;}
+/* wave slot — skinny shaper on top, compact synth engine below */
+body.studio #wave-sec{margin-bottom:8px;flex-shrink:0;}
+body.studio #wave-editor{height:88px;}
+body.studio #slot-wave .synth-section{flex-shrink:0;margin-bottom:8px;padding:7px;}
+body.studio #slot-wave .synth-title{font-size:10px;}
 
 /* ---- LANDSCAPE (phones only — desktop gets the standard layout) ---- */
 @media (orientation:landscape) and (max-height:520px){
@@ -407,10 +426,15 @@ body.studio #slot-osc .synth-section{flex-shrink:0;}
 <div class="panel" id="synth-panel">
   <!-- WAVE SHAPER -->
   <div class="synth-section" id="wave-sec">
-    <div class="synth-title">WAVE SHAPER <span class="ws-hint">DRAG THE WAVE TO SCULPT OSC 1</span></div>
+    <div class="synth-title" style="display:flex;align-items:center;gap:8px">
+      <button class="ws-arrow" id="wave-prev">◀</button>
+      <span id="wave-osc-label">WAVE SHAPER — OSC 1</span>
+      <button class="ws-arrow" id="wave-next">▶</button>
+      <span class="ws-hint">DRAG TO SCULPT</span>
+    </div>
     <canvas id="wave-editor" width="640" height="110"></canvas>
     <div class="row" style="margin-top:6px;align-items:center">
-      <button class="hbtn" id="wave-reset">RESET SINE</button>
+      <button class="hbtn" id="wave-reset">RESET</button>
       <span id="wave-status">STOCK WAVE — SINE</span>
     </div>
   </div>
@@ -771,7 +795,10 @@ body.studio #slot-osc .synth-section{flex-shrink:0;}
         <input type="range" id="loop-quant" min="0" max="1" step="1" value="1">
       </div>
     </div>
-    <button class="tbtn" id="export-btn" style="width:100%;margin-top:10px;color:var(--blue);border-color:var(--blue)">⬇ EXPORT AUDIO</button>
+    <div class="lm-btns" style="margin-top:10px">
+      <button class="tbtn" id="import-master-btn" style="color:var(--purple);border-color:var(--purple)">⬆ IMPORT MP3</button>
+      <button class="tbtn" id="export-btn" style="color:var(--blue);border-color:var(--blue)">⬇ EXPORT AUDIO</button>
+    </div>
   </div>
 </div>
 
@@ -815,9 +842,8 @@ body.studio #slot-osc .synth-section{flex-shrink:0;}
     <div class="ai-title">GENERATE</div>
     <div class="ai-action-grid">
       <button class="ai-action-btn" id="ai-gen-drums">DRUM PATTERN</button>
-      <button class="ai-action-btn" id="ai-gen-melody">MELODY LINE</button>
+      <button class="ai-action-btn" id="ai-gen-melody">GENERATE MELODY</button>
       <button class="ai-action-btn" id="ai-apply-drums" style="display:none">APPLY DRUMS</button>
-      <button class="ai-action-btn" id="ai-apply-melody" style="display:none">APPLY TO LOOP 4</button>
     </div>
   </div>
 
@@ -838,11 +864,12 @@ body.studio #slot-osc .synth-section{flex-shrink:0;}
   <div id="slot-banner"><div id="banner-ctrl"></div></div>
   <div id="slot-pads"></div>
   <div id="slot-seq"><div class="slot-title">STEP SEQUENCER</div></div>
+  <div id="slot-rloop"><div class="slot-title">RHYTHM LOOP</div></div>
   <div id="slot-keys"><div id="keys-side"></div></div>
-  <div id="slot-loop"><div class="slot-title">LOOPER</div></div>
-  <div id="slot-fx"><div class="slot-title">FX</div></div>
+  <div id="slot-kloop"><div class="slot-title">KEYS LOOP</div></div>
   <div id="slot-wave"></div>
-  <div id="slot-osc"><div class="slot-title">SYNTH ENGINE</div></div>
+  <div id="slot-fx"><div class="slot-title">FX</div></div>
+  <div id="slot-master"><div class="slot-title">MASTER LOOPER</div></div>
 </div>
 
 </div><!-- /app -->
@@ -1151,6 +1178,23 @@ const drumDefs = [
   { name:'FX 2',   color:'var(--fx3)',    fn: playFX2    },
 ];
 
+// Play a one-shot AudioBuffer (imported sample) at time t, optional pitch ratio
+function playSampleBuf(buf, t, rate) {
+  const src = ctx.createBufferSource();
+  src.buffer = buf; src.playbackRate.value = rate || 1;
+  const g = ctx.createGain(); g.gain.value = 1;
+  src.connect(g); g.connect(getOutput());
+  src.start(t);
+  return { src, g };
+}
+
+// Trigger a drum pad — imported sample if one is loaded, else the synth voice
+function playDrum(i, t) {
+  const def = drumDefs[i];
+  if (def.sampleBuf) playSampleBuf(def.sampleBuf, t);
+  else def.fn(t);
+}
+
 function noise(dur) {
   const len = ctx.sampleRate * dur;
   const buf = ctx.createBuffer(1, len, ctx.sampleRate);
@@ -1311,22 +1355,33 @@ let seqNextTime = 0;
 function seqGetBeatSec() { return 60 / parseInt(document.getElementById('bpm').value) / 4; }
 
 // KEY SEQ — 16-step note sequencer that runs with the main transport
+// Each slot is null or { midi, sustain } (sustain holds until the next placed note)
 const keySeq = new Array(SEQ_STEPS).fill(null);
 let keySeqTimers = [];
 let lastPlayedMidi = null;
+
+function keySeqGateSteps(s) {
+  // sustained note holds until the next placed step (wrapping), min 1 step
+  for (let n = 1; n <= SEQ_STEPS; n++) {
+    if (keySeq[(s + n) % SEQ_STEPS] != null) return n;
+  }
+  return SEQ_STEPS;
+}
 
 function seqSchedule() {
   while (seqNextTime < ctx.currentTime + 0.1) {
     const s = seqStep;
     seqPatterns.forEach((track, ti) => {
-      if (track[s]) drumDefs[ti].fn(seqNextTime);
+      if (track[s]) playDrum(ti, seqNextTime);
     });
     if (keySeq[s] != null) {
-      const midi = keySeq[s];
+      const midi = keySeq[s].midi;
+      const beat = seqGetBeatSec();
+      const gateMs = keySeq[s].sustain ? keySeqGateSteps(s) * beat * 1000 * 0.95 : beat * 800;
       const dt = Math.max(0, (seqNextTime - ctx.currentTime) * 1000);
       keySeqTimers.push(setTimeout(() => {
         noteOn(midi);
-        keySeqTimers.push(setTimeout(() => noteOff(midi), seqGetBeatSec() * 800));
+        keySeqTimers.push(setTimeout(() => noteOff(midi), gateMs));
       }, dt));
     }
     highlightSeqStep(s);
@@ -1352,7 +1407,7 @@ function seqStop() {
   clearTimeout(seqSchedulerTimer);
   keySeqTimers.forEach(clearTimeout);
   keySeqTimers = [];
-  keySeq.forEach(m => { if (m != null) noteOff(m); });
+  keySeq.forEach(m => { if (m != null) noteOff(m.midi); });
   seqStep = 0;
   clearSeqHighlight();
   document.getElementById('seq-play').classList.remove('play');
@@ -1378,42 +1433,50 @@ const synth = {
   glide: 0, vibrato: 0, brightness: 50,
   activeNotes: new Map(),
   lfoNode: null, lfoGain: null,
-  useCustomWave: false, customWave: null, customWaveDirty: false
+  keySampleBuf: null, keySampleRoot: 60
 };
 
 // =============================================
 // WAVE SHAPER — drawable oscillator wave (EKG style)
 // =============================================
 const WAVE_N = 128;
-const waveSamples = new Float32Array(WAVE_N);
+// Per-oscillator wave state — each oscillator keeps its own drawable wave
+const OSC_WAVES = [
+  { samples: new Float32Array(WAVE_N), useCustom: false, custom: null, dirty: false },
+  { samples: new Float32Array(WAVE_N), useCustom: false, custom: null, dirty: false }
+];
+let waveTarget = 0; // which oscillator the shaper is editing (0 = OSC 1, 1 = OSC 2)
 
-function waveFromType(type) {
+function waveFromType(type, target) {
+  const samples = OSC_WAVES[target].samples;
   for (let i = 0; i < WAVE_N; i++) {
     const ph = i / WAVE_N;
-    if (type === 'sine') waveSamples[i] = Math.sin(2 * Math.PI * ph);
-    else if (type === 'square') waveSamples[i] = ph < 0.5 ? 1 : -1;
-    else if (type === 'sawtooth') waveSamples[i] = 2 * ph - 1;
-    else waveSamples[i] = ph < 0.25 ? 4 * ph : ph < 0.75 ? 2 - 4 * ph : 4 * ph - 4;
+    if (type === 'sine') samples[i] = Math.sin(2 * Math.PI * ph);
+    else if (type === 'square') samples[i] = ph < 0.5 ? 1 : -1;
+    else if (type === 'sawtooth') samples[i] = 2 * ph - 1;
+    else samples[i] = ph < 0.25 ? 4 * ph : ph < 0.75 ? 2 - 4 * ph : 4 * ph - 4;
   }
 }
-waveFromType('sine');
+waveFromType('sawtooth', 0);
+waveFromType('square', 1);
 
-function rebuildCustomWave() {
-  if (!audioReady) { synth.customWaveDirty = true; return; }
+function rebuildCustomWave(target) {
+  const ow = OSC_WAVES[target];
+  if (!audioReady) { ow.dirty = true; return; }
   const K = 48;
   const real = new Float32Array(K + 1), imag = new Float32Array(K + 1);
   for (let k = 1; k <= K; k++) {
     let a = 0, b = 0;
     for (let n = 0; n < WAVE_N; n++) {
       const ang = 2 * Math.PI * k * n / WAVE_N;
-      a += waveSamples[n] * Math.cos(ang);
-      b += waveSamples[n] * Math.sin(ang);
+      a += ow.samples[n] * Math.cos(ang);
+      b += ow.samples[n] * Math.sin(ang);
     }
     real[k] = a * 2 / WAVE_N;
     imag[k] = b * 2 / WAVE_N;
   }
-  synth.customWave = ctx.createPeriodicWave(real, imag);
-  synth.customWaveDirty = false;
+  ow.custom = ctx.createPeriodicWave(real, imag);
+  ow.dirty = false;
 }
 
 function drawWaveEditor() {
@@ -1421,6 +1484,7 @@ function drawWaveEditor() {
   if (!cv) return;
   const c = cv.getContext('2d');
   const W = cv.width, H = cv.height;
+  const samples = OSC_WAVES[waveTarget].samples;
   c.fillStyle = '#04120b'; c.fillRect(0, 0, W, H);
   c.strokeStyle = 'rgba(0,230,118,.09)'; c.lineWidth = 1;
   for (let x = 0; x <= W; x += W / 16) { c.beginPath(); c.moveTo(x, 0); c.lineTo(x, H); c.stroke(); }
@@ -1432,18 +1496,28 @@ function drawWaveEditor() {
   c.beginPath();
   for (let i = 0; i < WAVE_N; i++) {
     const x = i / (WAVE_N - 1) * W;
-    const y = H / 2 - waveSamples[i] * (H / 2 - 8);
+    const y = H / 2 - samples[i] * (H / 2 - 8);
     i ? c.lineTo(x, y) : c.moveTo(x, y);
   }
   c.stroke();
   c.shadowBlur = 0;
 }
 
-function setWaveStatus(live) {
+function setWaveStatus() {
   const st = document.getElementById('wave-status');
   if (!st) return;
-  st.textContent = live ? 'CUSTOM WAVE LIVE' : ('STOCK WAVE — ' + synth.osc1Type.toUpperCase());
+  const live = OSC_WAVES[waveTarget].useCustom;
+  const stockType = waveTarget === 0 ? synth.osc1Type : synth.osc2Type;
+  st.textContent = live ? 'CUSTOM WAVE LIVE' : ('STOCK WAVE — ' + stockType.toUpperCase());
   st.classList.toggle('live', live);
+}
+
+function switchWaveTarget(t) {
+  waveTarget = (t + 2) % 2;
+  const lbl = document.getElementById('wave-osc-label');
+  if (lbl) lbl.textContent = 'WAVE SHAPER — OSC ' + (waveTarget + 1);
+  drawWaveEditor();
+  setWaveStatus();
 }
 
 function initWaveEditor() {
@@ -1452,36 +1526,40 @@ function initWaveEditor() {
 
   const applyDrag = e => {
     const rect = cv.getBoundingClientRect();
+    const samples = OSC_WAVES[waveTarget].samples;
     const xi = Math.round((e.clientX - rect.left) / rect.width * (WAVE_N - 1));
     const val = Math.max(-1, Math.min(1, 1 - 2 * (e.clientY - rect.top) / rect.height));
     for (let i = 0; i < WAVE_N; i++) {
       const d = Math.abs(i - xi);
       if (d < 10) {
         const w = Math.exp(-d * d / 18);
-        waveSamples[i] = waveSamples[i] * (1 - w) + val * w;
+        samples[i] = samples[i] * (1 - w) + val * w;
       }
     }
-    synth.useCustomWave = true;
-    synth.customWaveDirty = true;
+    OSC_WAVES[waveTarget].useCustom = true;
+    OSC_WAVES[waveTarget].dirty = true;
     drawWaveEditor();
-    setWaveStatus(true);
+    setWaveStatus();
   };
 
   cv.addEventListener('pointerdown', e => { e.preventDefault(); dragging = true; cv.setPointerCapture(e.pointerId); applyDrag(e); });
   cv.addEventListener('pointermove', e => { if (dragging) applyDrag(e); });
-  cv.addEventListener('pointerup', () => { dragging = false; if (audioReady) rebuildCustomWave(); });
+  cv.addEventListener('pointerup', () => { dragging = false; if (audioReady) rebuildCustomWave(waveTarget); });
   cv.addEventListener('pointercancel', () => { dragging = false; });
 
+  document.getElementById('wave-prev').addEventListener('click', () => switchWaveTarget(waveTarget - 1));
+  document.getElementById('wave-next').addEventListener('click', () => switchWaveTarget(waveTarget + 1));
+
   document.getElementById('wave-reset').addEventListener('click', () => {
-    waveFromType('sine');
-    synth.useCustomWave = false; synth.customWave = null;
+    const stockType = waveTarget === 0 ? synth.osc1Type : synth.osc2Type;
+    waveFromType(stockType, waveTarget);
+    OSC_WAVES[waveTarget].useCustom = false; OSC_WAVES[waveTarget].custom = null;
     drawWaveEditor();
-    setWaveStatus(false);
-    toast('Wave reset to sine');
+    setWaveStatus();
+    toast('OSC ' + (waveTarget + 1) + ' wave reset');
   });
 
-  drawWaveEditor();
-  setWaveStatus(false);
+  switchWaveTarget(0);
 }
 
 function noteFreq(note, octave) {
@@ -1499,6 +1577,20 @@ function noteOn(midi) {
   const freq = freqFromMidi(midi);
   const t = ctx.currentTime;
 
+  // Imported key sample takes over the voice, pitched from its root note
+  if (synth.keySampleBuf) {
+    const rate = Math.pow(2, (midi - synth.keySampleRoot) / 12);
+    const src = ctx.createBufferSource();
+    src.buffer = synth.keySampleBuf; src.playbackRate.value = rate;
+    const env = ctx.createGain();
+    env.gain.setValueAtTime(0, t);
+    env.gain.linearRampToValueAtTime(1, t + synth.attack);
+    src.connect(env); env.connect(getOutput());
+    src.start(t);
+    synth.activeNotes.set(midi, { sample: src, env });
+    return;
+  }
+
   const o1 = ctx.createOscillator();
   const o2 = ctx.createOscillator();
   const o1g = ctx.createGain();
@@ -1510,10 +1602,13 @@ function noteOn(midi) {
 
   o1.type = synth.osc1Type;
   o2.type = synth.osc2Type;
-  if (synth.useCustomWave) {
-    if (synth.customWaveDirty || !synth.customWave) rebuildCustomWave();
-    if (synth.customWave) o1.setPeriodicWave(synth.customWave);
-  }
+  [[o1, 0], [o2, 1]].forEach(([osc, oi]) => {
+    const ow = OSC_WAVES[oi];
+    if (ow.useCustom) {
+      if (ow.dirty || !ow.custom) rebuildCustomWave(oi);
+      if (ow.custom) osc.setPeriodicWave(ow.custom);
+    }
+  });
 
   const f1 = freq * Math.pow(2, synth.o1Oct) * Math.pow(2, synth.o1Semi/12) * Math.pow(2, synth.o1Det/1200);
   const f2 = freq * Math.pow(2, synth.o2Oct) * Math.pow(2, synth.o2Semi/12) * Math.pow(2, synth.o2Det/1200);
@@ -1580,7 +1675,11 @@ function noteOff(midi) {
   n.env.gain.cancelScheduledValues(t);
   n.env.gain.setValueAtTime(n.env.gain.value, t);
   n.env.gain.linearRampToValueAtTime(0, t + synth.release);
-  setTimeout(() => { try { n.o1.stop(); n.o2.stop(); n.lfo.stop(); } catch(e){} }, (synth.release + 0.1) * 1000);
+  if (n.sample) {
+    setTimeout(() => { try { n.sample.stop(); } catch(e){} }, (synth.release + 0.1) * 1000);
+  } else {
+    setTimeout(() => { try { n.o1.stop(); n.o2.stop(); n.lfo.stop(); } catch(e){} }, (synth.release + 0.1) * 1000);
+  }
   synth.activeNotes.delete(midi);
 }
 
@@ -1589,12 +1688,19 @@ function allNotesOff() { synth.activeNotes.forEach((_, midi) => noteOff(midi)); 
 // =============================================
 // LOOPER
 // =============================================
+// Two loops only: 0 = RHYTHM (records drum hits), 1 = KEYS (records notes)
+const LOOP_DEFS = [
+  { name: 'RHYTHM', kind: 'drum', color: 'var(--kick)' },
+  { name: 'KEYS',   kind: 'key',  color: 'var(--teal)' }
+];
 const looper = {
-  tracks: Array(4).fill(null).map(() => ({
+  tracks: LOOP_DEFS.map(d => ({
+    name: d.name, kind: d.kind, color: d.color,
     events: [], duration: 0, startTime: 0,
     recording: false, playing: false, muted: false, volume: 1,
-    playTimer: null, eventTimers: [], liveNotes: new Set()
+    playTimer: null, eventTimers: [], liveNotes: new Set(), audioBuf: null
   })),
+  master: { audioBuf: null, source: null, playing: false },
   barsToMs() { return (4 * 60000 / parseInt(document.getElementById('bpm').value)) * parseInt(document.getElementById('loop-len').value); }
 };
 
@@ -1628,7 +1734,7 @@ function scheduleLoopPlay(idx) {
     const delay = ev.time % tr.duration;
     tr.eventTimers.push(setTimeout(() => {
       if (!tr.playing || tr.muted) return;
-      if (ev.type === 'drum') drumDefs[ev.drumIdx].fn(ctx.currentTime);
+      if (ev.type === 'drum') playDrum(ev.drumIdx, ctx.currentTime);
       else if (ev.type === 'note') { noteOn(ev.midi); tr.liveNotes.add(ev.midi); }
       else if (ev.type === 'noteoff') { noteOff(ev.midi); tr.liveNotes.delete(ev.midi); }
     }, delay));
@@ -1649,11 +1755,13 @@ function loopStop(idx) {
 
 function loopCapture(type, data) {
   looper.tracks.forEach((tr, i) => {
-    if (tr.recording) {
-      tr.events.push({ time: performance.now() - tr.startTime, type, ...data });
-      const el = document.querySelector(`#lt-${i} .lt-empty`);
-      if (el) el.textContent = `● REC · ${tr.events.filter(e => e.type !== 'noteoff').length} events`;
-    }
+    if (!tr.recording) return;
+    // rhythm loop only records drums; keys loop only records notes
+    const match = tr.kind === 'drum' ? (type === 'drum') : (type === 'note' || type === 'noteoff');
+    if (!match) return;
+    tr.events.push({ time: performance.now() - tr.startTime, type, ...data });
+    const el = document.querySelector(`#lt-${i} .lt-empty`);
+    if (el) el.textContent = `● REC · ${tr.events.filter(e => e.type !== 'noteoff').length} events`;
   });
 }
 
@@ -1732,7 +1840,7 @@ function buildPads() {
 
     const triggerPad = () => {
       initAudio();
-      def.fn(ctx.currentTime);
+      playDrum(i, ctx.currentTime);
       loopCapture('drum', { drumIdx: i });
       pad.classList.add('hit');
       setTimeout(() => pad.classList.remove('hit'), 120);
@@ -1740,7 +1848,7 @@ function buildPads() {
 
     pad.addEventListener('touchstart', e => { e.preventDefault(); triggerPad(); }, { passive: false });
     pad.addEventListener('mousedown', e => { if (e.button === 0) triggerPad(); });
-    pad.addEventListener('contextmenu', e => { e.preventDefault(); openSeqMenu(i, e.clientX, e.clientY); });
+    pad.addEventListener('contextmenu', e => { e.preventDefault(); openPadMenu(i, e.clientX, e.clientY); });
     grid.appendChild(pad);
   });
 }
@@ -1812,6 +1920,89 @@ function openSeqMenu(ti, x, y) {
 }
 function closeSeqMenu() { ctxMenu.style.display = 'none'; }
 document.addEventListener('click', e => { if (!ctxMenu.contains(e.target)) closeSeqMenu(); });
+
+function positionMenu(x, y) {
+  ctxMenu.style.display = 'block';
+  const mw = ctxMenu.offsetWidth || 180, mh = ctxMenu.offsetHeight || 200;
+  ctxMenu.style.left = Math.max(4, Math.min(x, window.innerWidth - mw - 8)) + 'px';
+  ctxMenu.style.top = Math.max(4, Math.min(y, window.innerHeight - mh - 8)) + 'px';
+}
+
+// Refresh a pad + its sequencer row label after a rename
+function refreshDrumName(i) {
+  const def = drumDefs[i];
+  const pad = document.querySelector(`.pad[data-idx="${i}"]`);
+  if (pad) pad.innerHTML = `<strong>${def.name.split(' ')[0]}</strong><div class="pad-name">${def.name.includes(' ') ? def.name.split(' ').slice(1).join(' ') : ''}</div>`;
+  const lbl = document.querySelectorAll('.seq-row')[i]?.querySelector('.seq-label');
+  if (lbl) lbl.textContent = def.name;
+}
+
+// Import an MP3/audio file, decode to an AudioBuffer, hand to callback
+function importAudioSample(onLoaded, label) {
+  if (!audioReady) initAudio();
+  const inp = document.createElement('input');
+  inp.type = 'file'; inp.accept = 'audio/*';
+  inp.onchange = async e => {
+    const file = e.target.files[0];
+    if (!file) return;
+    try {
+      const buf = await ctx.decodeAudioData(await file.arrayBuffer());
+      onLoaded(buf, file.name);
+      toast((label || 'Sample') + ': ' + file.name.slice(0, 22));
+    } catch (err) { toast('Import failed — unsupported audio'); }
+  };
+  inp.click();
+}
+
+// PAD right-click menu — rename, import sample, program row
+function openPadMenu(i, x, y) {
+  const def = drumDefs[i];
+  ctxMenu.innerHTML = `<div class="ctx-title" style="color:${def.color}">${def.name}</div>`;
+  const items = [
+    { label: 'RENAME PAD', act: () => {
+        const name = prompt('Rename pad', def.name);
+        if (name && name.trim()) { def.name = name.trim().toUpperCase(); refreshDrumName(i); }
+      } },
+    { label: def.sampleBuf ? 'REPLACE SAMPLE (MP3)' : 'IMPORT SAMPLE (MP3)', act: () => {
+        importAudioSample(buf => { def.sampleBuf = buf; }, def.name + ' sample');
+      } }
+  ];
+  if (def.sampleBuf) items.push({ label: 'REMOVE SAMPLE', act: () => { def.sampleBuf = null; toast(def.name + ' back to synth'); } });
+  items.push({ divider: true });
+  SEQ_PRESETS.forEach(p => items.push({ label: p.label, act: () => {
+    for (let s = 0; s < SEQ_STEPS; s++) setSeqStep(i, s, !!p.fill(s));
+    toast(`${def.name}: ${p.label.toLowerCase()}`);
+  } }));
+  items.forEach(it => {
+    if (it.divider) { const d = document.createElement('div'); d.style.cssText = 'height:1px;background:var(--bdr);margin:2px 0'; ctxMenu.appendChild(d); return; }
+    const el = document.createElement('div');
+    el.className = 'ctx-item'; el.textContent = it.label;
+    el.addEventListener('click', () => { it.act(); closeSeqMenu(); });
+    ctxMenu.appendChild(el);
+  });
+  positionMenu(x, y);
+}
+
+// KEYBOARD sample menu — right-click the keyboard to load a pitched sampler
+function openKeysMenu(x, y) {
+  ctxMenu.innerHTML = `<div class="ctx-title" style="color:var(--teal)">KEYBOARD VOICE</div>`;
+  const items = [
+    { label: synth.keySampleBuf ? 'REPLACE KEY SAMPLE (MP3)' : 'IMPORT KEY SAMPLE (MP3)', act: () => {
+        importAudioSample(buf => {
+          synth.keySampleBuf = buf;
+          synth.keySampleRoot = lastPlayedMidi != null ? lastPlayedMidi : 60;
+        }, 'Key sample');
+      } }
+  ];
+  if (synth.keySampleBuf) items.push({ label: 'REMOVE KEY SAMPLE', act: () => { synth.keySampleBuf = null; toast('Keys back to synth'); } });
+  items.forEach(it => {
+    const el = document.createElement('div');
+    el.className = 'ctx-item'; el.textContent = it.label;
+    el.addEventListener('click', () => { it.act(); closeSeqMenu(); });
+    ctxMenu.appendChild(el);
+  });
+  positionMenu(x, y);
+}
 
 // KEYBOARD
 let keyOctave = 4;
@@ -1889,6 +2080,19 @@ function buildKeyboard() {
 }
 
 // KEY SEQ UI
+function renderKeySeqStep(s) {
+  const st = document.querySelector(`.kseq-step[data-step="${s}"]`);
+  if (!st) return;
+  const cell = keySeq[s];
+  if (cell == null) {
+    st.textContent = ''; st.classList.remove('on', 'sus');
+  } else {
+    st.textContent = noteNames[cell.midi % 12] + Math.floor(cell.midi / 12);
+    st.classList.add('on');
+    st.classList.toggle('sus', !!cell.sustain);
+  }
+}
+
 function buildKeySeq() {
   const grid = document.getElementById('key-seq');
   for (let s = 0; s < SEQ_STEPS; s++) {
@@ -1898,29 +2102,49 @@ function buildKeySeq() {
     st.addEventListener('click', () => {
       if (keySeq[s] != null) {
         keySeq[s] = null;
-        st.textContent = ''; st.classList.remove('on');
       } else if (lastPlayedMidi == null) {
         toast('Play a key first — then click a step');
+        return;
       } else {
-        keySeq[s] = lastPlayedMidi;
-        st.textContent = noteNames[lastPlayedMidi % 12] + Math.floor(lastPlayedMidi / 12);
-        st.classList.add('on');
+        keySeq[s] = { midi: lastPlayedMidi, sustain: false };
       }
+      renderKeySeqStep(s);
     });
+    st.addEventListener('contextmenu', e => { e.preventDefault(); openKeySeqMenu(s, e.clientX, e.clientY); });
     grid.appendChild(st);
   }
 }
 
-// LOOP TRACKS
+// KEY SEQ per-step menu — set sustain individually
+function openKeySeqMenu(s, x, y) {
+  if (keySeq[s] == null) { toast('Place a note here first'); return; }
+  ctxMenu.innerHTML = `<div class="ctx-title" style="color:var(--teal)">STEP ${s+1} — ${noteNames[keySeq[s].midi%12]}${Math.floor(keySeq[s].midi/12)}</div>`;
+  const items = [
+    { label: keySeq[s].sustain ? 'SUSTAIN: ON ✓' : 'SUSTAIN: OFF', act: () => { keySeq[s].sustain = !keySeq[s].sustain; renderKeySeqStep(s); } },
+    { label: 'CLEAR STEP', act: () => { keySeq[s] = null; renderKeySeqStep(s); } }
+  ];
+  items.forEach(it => {
+    const el = document.createElement('div');
+    el.className = 'ctx-item'; el.textContent = it.label;
+    el.addEventListener('click', () => { it.act(); closeSeqMenu(); });
+    ctxMenu.appendChild(el);
+  });
+  ctxMenu.style.display = 'block';
+  const mw = ctxMenu.offsetWidth || 180, mh = ctxMenu.offsetHeight || 120;
+  ctxMenu.style.left = Math.max(4, Math.min(x, window.innerWidth - mw - 8)) + 'px';
+  ctxMenu.style.top = Math.max(4, Math.min(y, window.innerHeight - mh - 8)) + 'px';
+}
+
+// LOOP TRACKS — one RHYTHM loop, one KEYS loop
 function buildLoopTracks() {
   const container = document.getElementById('loop-tracks');
-  for (let i = 0; i < 4; i++) {
+  looper.tracks.forEach((track, i) => {
     const tr = document.createElement('div');
     tr.className = 'loop-track'; tr.id = `lt-${i}`;
     tr.innerHTML = `
       <div class="lt-header">
-        <div class="lt-num">${i+1}</div>
-        <div class="lt-name">TRACK ${i+1}</div>
+        <div class="lt-num" style="color:${track.color}">${i+1}</div>
+        <div class="lt-name" style="color:${track.color}">${track.name}</div>
         <div class="lt-vol"><span>VOL</span><input type="range" min="0" max="1" step=".01" value="1" data-track="${i}"></div>
       </div>
       <div class="lt-waveform"><div class="lt-empty">Empty</div></div>
@@ -1936,7 +2160,7 @@ function buildLoopTracks() {
     });
     tr.querySelector('input[type=range]').addEventListener('input', e => { looper.tracks[i].volume = parseFloat(e.target.value); });
     container.appendChild(tr);
-  }
+  });
 }
 
 // FX TOGGLES
@@ -2005,18 +2229,17 @@ bindValRange('bright','bright-val', v => synth.brightness = v);
 
 // OSC type toggles
 ['osc1-type','osc2-type'].forEach(id => {
-  const prop = id === 'osc1-type' ? 'osc1Type' : 'osc2Type';
+  const oi = id === 'osc1-type' ? 0 : 1;
+  const prop = oi === 0 ? 'osc1Type' : 'osc2Type';
   document.getElementById(id).querySelectorAll('.osc-btn').forEach(btn => {
     btn.addEventListener('click', () => {
       document.getElementById(id).querySelectorAll('.osc-btn').forEach(b => b.classList.remove('on'));
       btn.classList.add('on');
       synth[prop] = btn.dataset.wave;
-      if (prop === 'osc1Type') {
-        synth.useCustomWave = false; synth.customWave = null;
-        waveFromType(btn.dataset.wave);
-        drawWaveEditor();
-        setWaveStatus(false);
-      }
+      // picking a stock wave clears that oscillator's custom drawing
+      OSC_WAVES[oi].useCustom = false; OSC_WAVES[oi].custom = null;
+      waveFromType(btn.dataset.wave, oi);
+      if (waveTarget === oi) { drawWaveEditor(); setWaveStatus(); }
     });
   });
 });
@@ -2080,10 +2303,32 @@ document.getElementById('master-vol').addEventListener('input', e => {
 });
 
 // Loop master
-document.getElementById('loop-all-play').addEventListener('click', () => looper.tracks.forEach((_, i) => loopPlay(i)));
-document.getElementById('loop-all-stop').addEventListener('click', () => looper.tracks.forEach((_, i) => loopStop(i)));
+// Master looper — plays/stops both loops plus any imported backing track
+function masterPlay() {
+  looper.tracks.forEach((t, i) => { if (t.duration) loopPlay(i); });
+  const m = looper.master;
+  if (m.audioBuf && !m.playing) {
+    m.source = ctx.createBufferSource();
+    m.source.buffer = m.audioBuf; m.source.loop = true;
+    m.source.connect(getOutput()); m.source.start();
+    m.playing = true;
+  }
+}
+function masterStop() {
+  looper.tracks.forEach((_, i) => loopStop(i));
+  const m = looper.master;
+  if (m.source) { try { m.source.stop(); } catch(e){} m.source = null; }
+  m.playing = false;
+}
+document.getElementById('loop-all-play').addEventListener('click', masterPlay);
+document.getElementById('loop-all-stop').addEventListener('click', masterStop);
 document.getElementById('loop-all-clear').addEventListener('click', () => {
-  looper.tracks.forEach((_, i) => { loopStop(i); looper.tracks[i].events = []; looper.tracks[i].duration = 0; updateLoopUI(i); });
+  masterStop();
+  looper.tracks.forEach((_, i) => { looper.tracks[i].events = []; looper.tracks[i].duration = 0; updateLoopUI(i); });
+  looper.master.audioBuf = null;
+});
+document.getElementById('import-master-btn').addEventListener('click', () => {
+  importAudioSample(buf => { looper.master.audioBuf = buf; }, 'Master track');
 });
 document.getElementById('loop-len').addEventListener('input', e => { document.getElementById('loop-len-val').textContent = e.target.value; });
 document.getElementById('loop-quant').addEventListener('input', e => { document.getElementById('loop-quant-val').textContent = e.target.value === '1' ? 'ON' : 'OFF'; });
@@ -2154,7 +2399,7 @@ document.getElementById('export-btn').addEventListener('click', toggleExport);
 // AI COMPOSER
 // =============================================
 
-const AI = { style: 'memphis', lastKey: null, lastMode: null, pendingDrums: null, pendingMelody: null };
+const AI = { style: 'memphis', lastKey: null, lastMode: null, pendingDrums: null };
 
 // Krumhansl-Schmuckler key profiles
 const KS_MAJOR = [6.35,2.23,3.48,2.33,4.38,4.09,2.52,5.19,2.39,3.66,2.29,2.88];
@@ -2303,8 +2548,7 @@ function aiAnalyze() {
     aiLog('Drum tracks already have patterns — tap DRUM PATTERN to overwrite', '');
     document.getElementById('ai-apply-drums').style.display = 'none';
   }
-  aiLog(`Melody ready: ${PC_NAMES[key]} ${mode} pentatonic · tap MELODY LINE then APPLY`, '');
-  document.getElementById('ai-apply-melody').style.display = '';
+  aiLog(`Place notes in the key sequencer, then tap GENERATE MELODY to arrange them`, '');
 }
 
 function aiSuggestDrums() {
@@ -2337,73 +2581,31 @@ function aiApplyDrums() {
   document.querySelector('.tab[data-tab="pads"]').click();
 }
 
+// GENERATE MELODY — reads the notes placed in the key sequencer and
+// re-arranges them into a scalable (ascending → descending) run across all steps
 function aiGenerateMelody() {
-  const key = AI.lastKey !== null ? AI.lastKey : 0;
-  const mode = AI.lastMode || 'major';
-  const bpm = parseInt(document.getElementById('bpm').value);
-  const scale = mode === 'major' ? SCALES.pentatonic_major : SCALES.pentatonic_minor;
+  let notes = [...new Set(keySeq.filter(c => c != null).map(c => c.midi))];
 
-  const rootMidi = key + 4 * 12; // octave 4
-  const playable = [];
-  [-12, 0, 12].forEach(sh => scale.forEach(iv => {
-    const n = rootMidi + sh + iv;
-    if (n >= 48 && n <= 84) playable.push(n);
-  }));
-
-  const beatMs = 60000 / bpm;
-  const barMs = 4 * beatMs;
-  const totalMs = 4 * barMs;
-  const durs = [beatMs/2, beatMs, beatMs, beatMs*1.5];
-
-  // Build a 1-bar motif then repeat with octave variation across 4 bars
-  const motif = [];
-  let mt = 0;
-  while (mt < barMs - 1) {
-    const dur = durs[Math.floor(Math.random() * durs.length)];
-    if (mt + dur > barMs) break;
-    const isRest = Math.random() < 0.15;
-    // Weight toward lower scale degrees (root, 3rd, 5th)
-    const idx = Math.floor(Math.pow(Math.random(), 1.5) * playable.length);
-    motif.push({ dur, midi: playable[Math.min(idx, playable.length - 1)], rest: isRest });
-    mt += dur;
+  if (notes.length === 0) {
+    // nothing placed — seed from the detected key's pentatonic scale
+    const key = AI.lastKey !== null ? AI.lastKey : 0;
+    const mode = AI.lastMode || 'minor';
+    const scale = mode === 'major' ? SCALES.pentatonic_major : SCALES.pentatonic_minor;
+    notes = scale.map(iv => 60 + key + iv);
+    aiLog(`No notes placed — seeded ${PC_NAMES[key]} ${mode} pentatonic`, 'tip');
   }
 
-  const events = [];
-  let time = 0;
-  const octShifts = [0, 0, 12, -12];
-  for (let bar = 0; bar < 4; bar++) {
-    const shift = octShifts[bar];
-    motif.forEach(m => {
-      if (!m.rest && time < totalMs) {
-        const midi = Math.max(36, Math.min(96, m.midi + shift));
-        events.push({ time, type: 'note', midi });
-        events.push({ time: time + m.dur * 0.82, type: 'noteoff', midi });
-      }
-      time += m.dur;
-    });
-    const barEnd = (bar + 1) * barMs;
-    if (time < barEnd) time = barEnd;
+  notes.sort((a, b) => a - b);
+  // ascending run, then back down (skipping the endpoints) for a natural scale shape
+  const down = notes.slice(1, -1).reverse();
+  const cycle = notes.concat(down);
+
+  for (let s = 0; s < SEQ_STEPS; s++) {
+    keySeq[s] = { midi: cycle[s % cycle.length], sustain: false };
+    renderKeySeqStep(s);
   }
-
-  AI.pendingMelody = { events, duration: totalMs };
-  aiLog(`Melody: ${PC_NAMES[key]} ${mode} pentatonic · 4 bars · ${events.length / 2} notes`, 'good');
-  aiLog(`Tap APPLY TO LOOP 4 to load it (overwrites track 4)`, 'tip');
-  document.getElementById('ai-apply-melody').style.display = '';
-  document.getElementById('ai-apply-melody').classList.add('ready');
-}
-
-function aiApplyMelody() {
-  if (!AI.pendingMelody) { toast('Generate a melody first'); return; }
-  const idx = 3;
-  loopStop(idx);
-  looper.tracks[idx].events = AI.pendingMelody.events;
-  looper.tracks[idx].duration = AI.pendingMelody.duration;
-  looper.tracks[idx].audioBuf = null;
-  updateLoopUI(idx);
-  document.getElementById('ai-apply-melody').classList.remove('ready');
-  aiLog(`Melody written to Loop Track 4 · ${(AI.pendingMelody.duration/1000).toFixed(1)}s loop`, 'good');
-  toast('Melody applied to Loop Track 4');
-  document.querySelector('.tab[data-tab="loop"]').click();
+  aiLog(`Melody arranged from ${notes.length} note${notes.length>1?'s':''} into a ${SEQ_STEPS}-step scale run`, 'good');
+  toast('Melody generated in the key sequencer');
 }
 
 // AI event bindings
@@ -2423,7 +2625,6 @@ document.getElementById('ai-analyze-btn').addEventListener('click', aiAnalyze);
 document.getElementById('ai-gen-drums').addEventListener('click', aiSuggestDrums);
 document.getElementById('ai-gen-melody').addEventListener('click', aiGenerateMelody);
 document.getElementById('ai-apply-drums').addEventListener('click', aiApplyDrums);
-document.getElementById('ai-apply-melody').addEventListener('click', aiApplyMelody);
 
 // Init click → start audio
 document.body.addEventListener('touchstart', () => initAudio(), { once: true, passive: true });
@@ -2449,22 +2650,25 @@ function enterStudio() {
   moveTo($('vis-canvas'), $('banner-ctrl'));
   moveTo($('vol-wrap'), $('banner-ctrl'));
   moveTo($('bpm-wrap'), $('banner-ctrl'));
-  // center: pads, sequencer, keyboard
+  // left column: pads (top), step sequencer (mid) — rhythm loop drops into slot-rloop
   moveTo($('pad-grid'), $('slot-pads'));
   moveTo($('seq-wrap'), $('slot-seq'));
   moveTo($('transport'), $('slot-seq'));
-  // keys: side controls + keyboard
+  // middle column: mode bar, keyboard, key sequencer, octave/sustain
   const side = $('keys-side');
   moveTo(document.querySelector('#keys-panel .mode-bar'), side);
+  moveTo($('keyboard-wrap'), side);
   moveTo($('key-seq-wrap'), side);
   moveTo($('keys-oct'), side);
-  moveTo($('keyboard-wrap'), $('slot-keys'));
-  // right: looper, fx, wave, oscillators
-  moveTo($('loop-tracks'), $('slot-loop'));
-  moveTo(document.querySelector('#loop-panel .loop-master'), $('slot-loop'));
-  moveTo(document.querySelector('#fx-panel .pedals'), $('slot-fx'));
+  // the two loops into their own tiles under pads and keyboard
+  moveTo($('lt-0'), $('slot-rloop'));
+  moveTo($('lt-1'), $('slot-kloop'));
+  // master looper (with import/export) into the bottom banner
+  moveTo(document.querySelector('#loop-panel .loop-master'), $('slot-master'));
+  // right column: skinny wave shaper + synth engine on top, FX filling below
   moveTo($('wave-sec'), $('slot-wave'));
-  document.querySelectorAll('#synth-panel .synth-section, #keys-panel .synth-section').forEach(sec => moveTo(sec, $('slot-osc')));
+  document.querySelectorAll('#synth-panel .synth-section, #keys-panel .synth-section').forEach(sec => moveTo(sec, $('slot-wave')));
+  moveTo(document.querySelector('#fx-panel .pedals'), $('slot-fx'));
   document.body.classList.add('studio');
   drawWaveEditor();
 }
@@ -2489,6 +2693,12 @@ buildKeyboard();
 buildKeySeq();
 buildLoopTracks();
 initWaveEditor();
+
+// Right-click the keyboard to load / clear an imported key sample
+document.getElementById('keyboard-wrap').addEventListener('contextmenu', e => {
+  e.preventDefault(); openKeysMenu(e.clientX, e.clientY);
+});
+
 applyLayout();
 
 // Default sequence preset
