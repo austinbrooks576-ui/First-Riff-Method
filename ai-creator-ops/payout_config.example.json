@@ -1,0 +1,12 @@
+{
+  "_comment": "PLACEHOLDER ONLY. Do not put real bank details in a git repo. Configure actual payouts inside each platform's dashboard against your KYC-verified identity. Copy this to payout_config.local.json (gitignored) if you want local bookkeeping.",
+  "operator_legal_name": "<your verified legal name>",
+  "payout_method": "platform_dashboard",
+  "accounts": [
+    {
+      "platform": "fansly",
+      "payout_configured_in_dashboard": true,
+      "bank_last4": "REDACTED"
+    }
+  ]
+}
